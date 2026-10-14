@@ -29,19 +29,22 @@
                         <span class="o_form_label text-muted">Project Management Zimbabwe Examination Entry</span>
                         <h1 class="d-flex align-items-center gap-2">
                             <field name="name" readonly="1"/>
-                            <field name="exam_type" widget="badge" decoration-primary="exam_type == 'cpm_dpm'" decoration-success="exam_type == 'cme'" decoration-info="exam_type == 'pgdpm'"/>
+                            <field name="exam_type" invisible="1"/>
+                            <span class="badge rounded-pill text-bg-primary fs-5" invisible="exam_type != 'cpm_dpm'">EXAMINATION ENTRY FORM (CPM &amp; DPM only)</span>
+                            <span class="badge rounded-pill text-bg-success fs-5" invisible="exam_type != 'cme'">EXAMINATION ENTRY FORM (CM&amp;E only)</span>
+                            <span class="badge rounded-pill text-bg-info fs-5" invisible="exam_type != 'pgdpm'">REGISTRATION AND EXAMINATION ENTRY FORM (PGDPM only)</span>
                         </h1>
                     </div>
 
                     <!-- Top Details -->
                     <group>
-                        <group string="Exam Setup">
-                            <field name="exam_type" widget="radio" options="{'horizontal': true}"/>
+                        <group string="Exam Session Details">
+                            <field name="exam_type" invisible="1"/>
                             <field name="exam_session" placeholder="e.g. November 2026"/>
                             <field name="company_id" groups="base.group_multi_company" options="{'no_create': True, 'no_open': True}" invisible="1"/>
                             <field name="currency_id" invisible="1"/>
                         </group>
-                        <group string="Member Quick Link">
+                        <group string="Candidate Link">
                             <field name="member_id" options="{'no_create': True}" placeholder="Auto-fill from PMZ Member profile..."/>
                             <field name="student_membership_no" placeholder="e.g. STU-2026-001"/>
                         </group>
@@ -66,12 +69,35 @@
                     <notebook>
                         <!-- PAGE 1: Candidate & College Information (Sections 1 to 7) -->
                         <page string="Page 1: Candidate &amp; College Details (1-7)" name="page_1_details">
-                            <div class="alert alert-warning py-2 mb-3 border-start border-4 border-warning" role="alert">
+                            <!-- Important Box for CPM & DPM -->
+                            <div class="alert alert-warning py-2 mb-3 border-start border-4 border-warning" role="alert" invisible="exam_type != 'cpm_dpm'">
                                 <h6 class="fw-bold mb-1 text-uppercase">IMPORTANT:</h6>
                                 <ol class="small mb-0 ps-3" style="line-height: 1.5;">
                                     <li>Please ensure that page 1 and 2 of this form are completed in every respect.</li>
                                     <li>Please attach certified copies of academic and identification certificates.</li>
                                     <li>Examination registration fees are <strong>RTGS$250 (USD$25)</strong> per module for CPM and <strong>RTGS$300 (USD$30)</strong> per module for DPM. Proof of payment must be attached to this form.</li>
+                                    <li>Examination registration is invalid without valid PMZ membership.</li>
+                                </ol>
+                            </div>
+
+                            <!-- Important Box for PGDPM -->
+                            <div class="alert alert-info py-2 mb-3 border-start border-4 border-info" role="alert" invisible="exam_type != 'pgdpm'">
+                                <h6 class="fw-bold mb-1 text-uppercase">IMPORTANT:</h6>
+                                <ol class="small mb-0 ps-3" style="line-height: 1.5;">
+                                    <li>Please ensure that page 1 and 2 of this form are completed in every respect.</li>
+                                    <li>Please attach certified copies of CV, academic, professional, and identification certificates.</li>
+                                    <li>Examination registration fees for PGDPM are <strong>USD$40 per module</strong>. Proof of payment must be attached to this form.</li>
+                                    <li>Examination registration is invalid without valid PMZ membership.</li>
+                                </ol>
+                            </div>
+
+                            <!-- Important Box for CM&E -->
+                            <div class="alert alert-success py-2 mb-3 border-start border-4 border-success" role="alert" invisible="exam_type != 'cme'">
+                                <h6 class="fw-bold mb-1 text-uppercase">IMPORTANT:</h6>
+                                <ol class="small mb-0 ps-3" style="line-height: 1.5;">
+                                    <li>Please ensure that page 1 and 2 of this form are completed in every respect.</li>
+                                    <li>Please attach certified copies of academic and identification certificates.</li>
+                                    <li>Examination registration fees are <strong>USD$25 per module</strong> for CM&amp;E. Proof of payment must be attached to this form.</li>
                                     <li>Examination registration is invalid without valid PMZ membership.</li>
                                 </ol>
                             </div>
