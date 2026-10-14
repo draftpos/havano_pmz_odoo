@@ -27,6 +27,7 @@
         'views/pmz_exam_entry_views.xml',
         'views/pmz_settings_views.xml',
         'views/pmz_menus.xml',
+        'data/pmz_default_home_action.xml',
     ],
     'installable': True,
     'application': True,
