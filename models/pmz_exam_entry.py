@@ -240,14 +240,81 @@ class PmzExamEntry(models.Model):
         return Partner.search([('email', '=ilike', (self.email or '').strip())], limit=1) or Partner.create({
             'name': f"{self.forenames} {self.surname}".strip(), 'email': self.email, 'phone': self.telephone_mobile})
 
+    def _get_selected_modules(self):
+        """Return list of (code, title, fee_key) for every selected module."""
+        self.ensure_one()
+        selected = []
+        # CPM Modules
+        cpm_modules = [
+            ('cpm_ipm01', 'IPM01', 'Introduction to Project Management', 'cpm'),
+            ('cpm_pp02', 'PP02', 'Project Planning', 'cpm'),
+            ('cpm_pipml03', 'PIPML03', 'Project Implementation', 'cpm'),
+            ('cpm_pme04', 'PM&E04', 'Project Monitoring and Evaluation', 'cpm'),
+        ]
+        # DPM Modules
+        dpm_modules = [
+            ('dpm_pims05', 'PIMS05', 'Project Management Information Systems', 'dpm'),
+            ('dpm_ppcm06', 'PPCM06', 'Project Procurement & Contracts Management', 'dpm'),
+            ('dpm_prm07', 'PRM07', 'Project Risk Management', 'dpm'),
+            ('dpm_pcm08', 'PCM08', 'Project Cost Management', 'dpm'),
+            ('dpm_ptm09', 'PTM09', 'Project Time Management', 'dpm'),
+        ]
+        # CM&E Modules
+        cme_modules = [
+            ('cme_ipm01', 'IPM01', 'Introduction to Project Management', 'cme'),
+            ('cme_pme02', 'PME02', 'Principles of Project Monitoring and Evaluation', 'cme'),
+            ('cme_qlet03', 'QLET03', 'Qualitative Evaluation Techniques', 'cme'),
+            ('cme_qtet04', 'QTET04', 'Quantitative Evaluation Techniques', 'cme'),
+        ]
+        # PGDPM Modules
+        pgdpm_modules = [
+            ('pgdpm_pdp01', 'PDP01', 'Personal Development Planning', 'pgdpm'),
+            ('pgdpm_pppm02', 'PPPM02', 'Principles and Practices in Project Management', 'pgdpm'),
+            ('pgdpm_pimpl03', 'PIMPL03', 'Project Planning and Implementation', 'pgdpm'),
+            ('pgdpm_pme04', 'P M&E04', 'Project Monitoring and Evaluation', 'pgdpm'),
+            ('pgdpm_pmis05', 'PMIS05', 'Project Management Information Systems', 'pgdpm'),
+            ('pgdpm_plcm06', 'PLCM06', 'Project Leadership and Change Management', 'pgdpm'),
+            ('pgdpm_prm07', 'PRM07', 'Project Risk Management', 'pgdpm'),
+            ('pgdpm_pvcm08', 'PVCM08', 'Project Valuation and Cost Management', 'pgdpm'),
+            ('pgdpm_ptm09', 'PTM09', 'Project Time Management', 'pgdpm'),
+        ]
+
+        if self.exam_type == 'cpm_dpm':
+            for fname, code, title, fee_key in cpm_modules + dpm_modules:
+                if getattr(self, fname):
+                    selected.append((code, title, fee_key))
+        elif self.exam_type == 'cme':
+            for fname, code, title, fee_key in cme_modules:
+                if getattr(self, fname):
+                    selected.append((code, title, fee_key))
+        elif self.exam_type == 'pgdpm':
+            for fname, code, title, fee_key in pgdpm_modules:
+                if getattr(self, fname):
+                    selected.append((code, title, fee_key))
+        return selected
+
     def action_bill_exam(self):
         for rec in self:
             if rec.invoice_id and rec.invoice_id.state != 'cancel':
                 continue
             company = rec.company_id or self.env.company
+            modules = rec._get_selected_modules()
             lines = []
-            for key, count in rec._pmz_exam_billing_parts():
-                lines += company._pmz_invoice_lines(company._pmz_fee_assignment(key), count, key.upper())
+            if modules:
+                for code, title, fee_key in modules:
+                    struct = company._pmz_fee_assignment(fee_key)
+                    # Use the configured fee assignment lines per module
+                    for struct_line in struct.line_ids:
+                        lines.append((0, 0, {
+                            'product_id': struct_line.product_id.id,
+                            'name': f"[{code}] {title} ({fee_key.upper()} Exam Fee)",
+                            'quantity': struct_line.qty or 1.0,
+                            'price_unit': struct_line.rate,
+                        }))
+            else:
+                for key, count in rec._pmz_exam_billing_parts():
+                    lines += company._pmz_invoice_lines(company._pmz_fee_assignment(key), count, key.upper())
+
             inv = company._pmz_create_invoice(rec._pmz_partner(), lines, _('PMZ Exam Entry - %s') % rec.name)
             rec.invoice_id = inv.id
 
