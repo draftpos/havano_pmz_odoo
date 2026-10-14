@@ -1,0 +1,969 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="login_professional_admission_link" inherit_id="web.login" name="Professional Admission Link">
+        <xpath expr="//form" position="inside">
+            <div class="text-center mt-3 mb-3 border-top pt-3">
+                <a href="/professional/apply" class="btn w-100 text-white" style="background-color: #004080 !important; border-color: #004080 !important;">Apply for Professional Membership</a>
+            </div>
+        </xpath>
+    </template>
+
+    <!-- The form page matching the PDF -->
+    <template id="professional_admission_form" name="Professional Membership Application">
+        <t t-call="website.layout">
+            <div id="wrap" class="container-fluid mt-4 mb-5 px-md-5">
+                <div class="row justify-content-center">
+                    <div class="col-12">
+                        <div class="card shadow-sm border-0 w-100">
+                            <style>
+                                /* Make radio buttons look like square checkboxes to match the physical form */
+                                .form-check-input[type="radio"] {
+                                    -webkit-appearance: none;
+                                    -moz-appearance: none;
+                                    appearance: none;
+                                    width: 22px;
+                                    height: 22px;
+                                    border: 2px solid #000;
+                                    border-radius: 0;
+                                    background-color: white;
+                                    display: inline-block;
+                                    vertical-align: middle;
+                                    margin-right: 5px;
+                                    cursor: pointer;
+                                }
+                                .form-check-input[type="radio"]:checked {
+                                    background-color: black;
+                                }
+                                .form-check-label {
+                                    vertical-align: middle;
+                                    margin-bottom: 0;
+                                    font-size: 14px;
+                                }
+                                
+                                /* Print Styles: Hide Odoo Header/Footer and force 100% width */
+                                @media print {
+                                    header, footer, nav, .o_header_standard, #top, .navbar { display: none !important; }
+                                    body { background-color: white !important; padding: 0 !important; margin: 0 !important; zoom: 0.85; }
+                                    #wrap { margin: 0 !important; padding: 0 !important; width: 100% !important; max-width: 100% !important; }
+                                    .container-fluid { padding: 0 !important; }
+                                    .card { border: none !important; box-shadow: none !important; margin: 0 !important; width: 100% !important; }
+                                    
+                                    /* Fix table overflow on A4 portrait */
+                                    table { table-layout: fixed !important; width: 100% !important; max-width: 100% !important; }
+                                    .input-group-text { white-space: normal !important; overflow-wrap: break-word !important; }
+                                    .input-group-text[style*="width: 250px;"] { width: auto !important; min-width: 120px !important; max-width: 200px !important; }
+                                    
+                                    @page { size: portrait; margin: 5mm; }
+                                }
+                            </style>
+                            <div class="card-header bg-white text-dark text-center py-4 position-relative border-bottom border-dark border-3">
+                                <div class="row align-items-center mb-3">
+                                    <div class="col-md-3 text-start">
+                                        <t t-if="res_company.logo">
+                                            <img t-att-src="image_data_uri(res_company.logo)" alt="Logo" style="max-height: 100px;"/>
+                                        </t>
+                                    </div>
+                                    <div class="col-md-5 text-start" style="font-size: 14px;">
+                                        <h5 class="fw-bold mb-1 text-uppercase text-primary" style="color: #004080 !important;" t-esc="res_company.name"/>
+                                        <div><t t-esc="res_company.street"/></div>
+                                        <div><t t-esc="res_company.street2"/></div>
+                                        <div><t t-esc="res_company.city"/></div>
+                                    </div>
+                                    <div class="col-md-4 text-start" style="font-size: 14px;">
+                                        <div><strong>Website:</strong> <span class="text-primary" t-esc="res_company.website"/></div>
+                                        <div><strong>E-mail:</strong> <span class="text-primary" t-esc="res_company.email"/></div>
+                                        <div><strong>Tel:</strong> <span class="text-primary" t-esc="res_company.phone"/></div>
+                                    </div>
+                                </div>
+                                <h4 class="mb-0 fw-bold" style="color: #004080 !important;">INDIVIDUAL MEMBERSHIP APPLICATION FORM</h4>
+                                <div class="position-absolute d-print-none" style="top: 15px; right: 15px;">
+                                    <a href="/professional/track" class="btn text-white me-2" style="background-color: #28a745 !important;">
+                                        <i class="fa fa-search"/> Track Status
+                                    </a>
+                                    <button type="button" onclick="window.print()" class="btn text-white" style="background-color: #004080 !important;">
+                                        <i class="fa fa-download"/> Download PDF
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body p-5">
+                                <form action="/professional/apply/submit" method="POST" enctype="multipart/form-data">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    
+                                    <div class="alert alert-info d-print-none">
+                                        <p>Complete this form and submit. Membership fees differ per grading, please verify with the membership grades document or your local chapter office.</p>
+                                    </div>
+                                    
+                                    <h5 class="border-bottom pb-2 mb-3">THIS APPLICATION IS MADE BY MYSELF TO BE REGISTERED AS:</h5>
+                                    <div class="row mb-4">
+                                        <div class="col-md-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="grading" id="g_associate" value="associate"/>
+                                                <label class="form-check-label" for="g_associate">ASSOCIATE MEMBER</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="grading" id="g_student" value="student"/>
+                                                <label class="form-check-label" for="g_student">STUDENT MEMBER</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="grading" id="g_retiree" value="retiree"/>
+                                                <label class="form-check-label" for="g_retiree">RETIREE</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="grading" id="g_fellow" value="fellow"/>
+                                                <label class="form-check-label" for="g_fellow">FELLOW</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <h5 class="mb-2">OPTIONAL GRADING:</h5>
+                                    <p class="text-muted small">**FOR FULL/PROF MEMBERSHIP, KINDLY COMPLETE GRADING FORM AS WELL</p>
+                                    <div class="row mb-4">
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="grading" id="g_full" value="full"/>
+                                                <label class="form-check-label" for="g_full">FULL MEMBER</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="grading" id="g_prof" value="professional"/>
+                                                <label class="form-check-label" for="g_prof">PROFESSIONAL MEMBER</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <h5 class="border-bottom pb-2 mb-3 mt-4 text-uppercase fw-bold">PLEASE COMPLETE IN BLOCK LETTERS AND TICK AT APPROPRIATE CHOICES</h5>
+                                    
+                                    <table class="table table-bordered border-dark align-middle mb-4" style="border: 2px solid black;">
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="4" class="p-0">
+                                                    <div class="input-group">
+                                                        <span class="input-group-text border-0 rounded-0 bg-transparent fw-bold" style="width: 250px;">SURNAME</span>
+                                                        <input type="text" name="surname" class="form-control border-0 rounded-0 border-start border-dark" required="1"/>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2" class="p-0 border-end border-dark">
+                                                    <div class="input-group">
+                                                        <span class="input-group-text border-0 rounded-0 bg-transparent fw-bold" style="width: 250px;">FIRST NAME</span>
+                                                        <input type="text" name="first_name" class="form-control border-0 rounded-0 border-start border-dark" required="1"/>
+                                                    </div>
+                                                </td>
+                                                <td colspan="2" class="p-0">
+                                                    <div class="input-group">
+                                                        <span class="input-group-text border-0 rounded-0 bg-transparent fw-bold">D.O.B</span>
+                                                        <input type="date" name="dob" class="form-control border-0 rounded-0 border-start border-dark"/>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2" class="p-0 border-end border-dark">
+                                                    <div class="input-group">
+                                                        <span class="input-group-text border-0 rounded-0 bg-transparent fw-bold" style="width: 250px;">MIDDLE NAME</span>
+                                                        <input type="text" name="middle_name" class="form-control border-0 rounded-0 border-start border-dark"/>
+                                                    </div>
+                                                </td>
+                                                <td colspan="2" class="p-0">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="2" class="p-0 border-end border-dark">
+                                                    <div class="input-group">
+                                                        <span class="input-group-text border-0 rounded-0 bg-transparent fw-bold" style="width: 250px;">TITLE (PROF/DR/MR/MRS/MS/Other)</span>
+                                                        <select name="title" class="form-select border-0 rounded-0 border-start border-dark">
+                                                            <option value="">--Select--</option>
+                                                            <option value="PROF">PROF</option>
+                                                            <option value="DR">DR</option>
+                                                            <option value="MR">MR</option>
+                                                            <option value="MRS">MRS</option>
+                                                            <option value="MS">MS</option>
+                                                            <option value="Other">Other</option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td class="p-0 border-end border-dark">
+                                                    <div class="input-group">
+                                                        <span class="input-group-text border-0 rounded-0 bg-transparent fw-bold">PMP: YES/NO</span>
+                                                        <select name="pmp" class="form-select border-0 rounded-0 border-start border-dark">
+                                                            <option value="">--Select--</option>
+                                                            <option value="yes">YES</option>
+                                                            <option value="no">NO</option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                                <td class="p-0">
+                                                    <div class="input-group">
+                                                        <span class="input-group-text border-0 rounded-0 bg-transparent fw-bold">YEAR</span>
+                                                        <input type="text" name="year" class="form-control border-0 rounded-0 border-start border-dark"/>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="4" class="p-0">
+                                                    <div class="input-group">
+                                                        <span class="input-group-text border-0 rounded-0 bg-transparent fw-bold" style="width: 250px;">HIGHEST PROF. QUALIFICATIONS</span>
+                                                        <input type="text" name="highest_prof_qualifications" class="form-control border-0 rounded-0 border-start border-dark"/>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="4" class="p-0">
+                                                    <div class="input-group">
+                                                        <span class="input-group-text border-0 rounded-0 bg-transparent fw-bold" style="width: 250px;">COMPANY NAME &amp; ADDRESS</span>
+                                                        <input type="text" name="company_name_address" class="form-control border-0 rounded-0 border-start border-dark"/>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="4" class="p-0">
+                                                    <div class="input-group">
+                                                        <span class="input-group-text border-0 rounded-0 bg-transparent fw-bold" style="width: 250px;">PRESENT POSITION</span>
+                                                        <input type="text" name="present_position" class="form-control border-0 rounded-0 border-start border-dark"/>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="3" class="p-0 border-end border-dark">
+                                                    <div class="input-group">
+                                                        <span class="input-group-text border-0 rounded-0 bg-transparent fw-bold" style="width: 250px;">TELEPHONE NUMBER (CELL)</span>
+                                                        <input type="text" name="telephone" class="form-control border-0 rounded-0 border-start border-dark" required="1"/>
+                                                    </div>
+                                                </td>
+                                                <td class="p-0">
+                                                    <div class="input-group">
+                                                        <span class="input-group-text border-0 rounded-0 bg-transparent fw-bold">I.D No.</span>
+                                                        <input type="text" name="id_no" class="form-control border-0 rounded-0 border-start border-dark"/>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="3" class="p-0 border-end border-dark">
+                                                    <div class="input-group">
+                                                        <span class="input-group-text border-0 rounded-0 bg-transparent fw-bold" style="width: 250px;">RESIDENTIAL ADDRESS</span>
+                                                        <input type="text" name="residential_address" class="form-control border-0 rounded-0 border-start border-dark"/>
+                                                    </div>
+                                                </td>
+                                                <td class="p-0">
+                                                    <div class="input-group">
+                                                        <span class="input-group-text border-0 rounded-0 bg-transparent fw-bold">CHAPTER</span>
+                                                        <input type="text" name="chapter" class="form-control border-0 rounded-0 border-start border-dark"/>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="4" class="p-0">
+                                                    <div class="input-group">
+                                                        <span class="input-group-text border-0 rounded-0 bg-transparent fw-bold" style="width: 250px;">EMAIL ADDRESSES</span>
+                                                        <input type="email" name="email" class="form-control border-0 rounded-0 border-start border-dark" required="1"/>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="4" class="p-0">
+                                                    <div class="input-group">
+                                                        <span class="input-group-text border-0 rounded-0 bg-transparent fw-bold" style="width: 250px;">MEMBERSHIP SESSION</span>
+                                                        <select name="session" class="form-select border-0 rounded-0 border-start border-dark" required="1">
+                                                            <option value="first" selected="1">First Session</option>
+                                                            <option value="second">Second Session</option>
+                                                        </select>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="4" class="p-0">
+                                                    <div class="input-group">
+                                                        <span class="input-group-text border-0 rounded-0 bg-transparent fw-bold" style="width: 250px;">PREFERRED POSTAL ADDRESS</span>
+                                                        <input type="text" name="postal_address" class="form-control border-0 rounded-0 border-start border-dark"/>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <h5 class="border-bottom pb-2 mb-3">INDUSTRY AFFILIATION OF YOUR ORGANISATION (TICK ONE - MOST DESCRIPTIVE)</h5>
+                                    <div class="row mb-4">
+                                        <div class="col-md-4">
+                                            <div class="form-check"><input type="radio" name="industry_affiliation" value="Government" class="form-check-input"/><label class="form-check-label">Government</label></div>
+                                            <div class="form-check"><input type="radio" name="industry_affiliation" value="Finance/Insurance/Banking" class="form-check-input"/><label class="form-check-label">Finance/Insurance/Banking</label></div>
+                                            <div class="form-check"><input type="radio" name="industry_affiliation" value="Engineering/Consultation" class="form-check-input"/><label class="form-check-label">Engineering/Consultation</label></div>
+                                            <div class="form-check"><input type="radio" name="industry_affiliation" value="Architecture/Building" class="form-check-input"/><label class="form-check-label">Architecture/Building</label></div>
+                                            <div class="form-check"><input type="radio" name="industry_affiliation" value="Other" class="form-check-input"/><label class="form-check-label">Other</label></div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check"><input type="radio" name="industry_affiliation" value="Business Mgt Services" class="form-check-input"/><label class="form-check-label">Business Mgt Services</label></div>
+                                            <div class="form-check"><input type="radio" name="industry_affiliation" value="Computers/Software/DP" class="form-check-input"/><label class="form-check-label">Computers/Software/DP</label></div>
+                                            <div class="form-check"><input type="radio" name="industry_affiliation" value="Education/Training" class="form-check-input"/><label class="form-check-label">Education/Training</label></div>
+                                            <div class="form-check"><input type="radio" name="industry_affiliation" value="Utility/Service Provider" class="form-check-input"/><label class="form-check-label">Utility/Service Provider</label></div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="form-check"><input type="radio" name="industry_affiliation" value="Health/Social" class="form-check-input"/><label class="form-check-label">Health/Social</label></div>
+                                            <div class="form-check"><input type="radio" name="industry_affiliation" value="Property Dvpt" class="form-check-input"/><label class="form-check-label">Property Dvpt</label></div>
+                                            <div class="form-check"><input type="radio" name="industry_affiliation" value="Mining Industry" class="form-check-input"/><label class="form-check-label">Mining Industry</label></div>
+                                            <div class="form-check"><input type="radio" name="industry_affiliation" value="Chemical Industry" class="form-check-input"/><label class="form-check-label">Chemical Industry</label></div>
+                                            <div class="form-check"><input type="radio" name="industry_affiliation" value="Pharmaceutical" class="form-check-input"/><label class="form-check-label">Pharmaceutical</label></div>
+                                            <div class="form-check"><input type="radio" name="industry_affiliation" value="Consulting" class="form-check-input"/><label class="form-check-label">Consulting</label></div>
+                                            <div class="form-check"><input type="radio" name="industry_affiliation" value="Manufacturing" class="form-check-input"/><label class="form-check-label">Manufacturing</label></div>
+                                            <div class="form-check"><input type="radio" name="industry_affiliation" value="Communication" class="form-check-input"/><label class="form-check-label">Communication</label></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <h5 class="border-bottom pb-2 mb-3">WHAT CATEGORY BEST DESCRIBES YOUR JOB FUNCTION?</h5>
+                                    <div class="row mb-4">
+                                        <div class="col-md-3">
+                                            <div class="form-check"><input type="radio" name="job_function" value="Business Development" class="form-check-input"/><label class="form-check-label">Business Development</label></div>
+                                            <div class="form-check"><input type="radio" name="job_function" value="Comm Mgmt" class="form-check-input"/><label class="form-check-label">Comm Mgmt</label></div>
+                                            <div class="form-check"><input type="radio" name="job_function" value="Consulting" class="form-check-input"/><label class="form-check-label">Consulting</label></div>
+                                            <div class="form-check"><input type="radio" name="job_function" value="Contract/Proc Mgmt" class="form-check-input"/><label class="form-check-label">Contract/Proc Mgmt</label></div>
+                                            <div class="form-check"><input type="radio" name="job_function" value="Legal" class="form-check-input"/><label class="form-check-label">Legal</label></div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-check"><input type="radio" name="job_function" value="Cost Mgmt" class="form-check-input"/><label class="form-check-label">Cost Mgmt</label></div>
+                                            <div class="form-check"><input type="radio" name="job_function" value="Distribution" class="form-check-input"/><label class="form-check-label">Distribution</label></div>
+                                            <div class="form-check"><input type="radio" name="job_function" value="Marketing/PR/Sales" class="form-check-input"/><label class="form-check-label">Marketing/PR/Sales</label></div>
+                                            <div class="form-check"><input type="radio" name="job_function" value="Production" class="form-check-input"/><label class="form-check-label">Production</label></div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-check"><input type="radio" name="job_function" value="Civil Engineering" class="form-check-input"/><label class="form-check-label">Civil Engineering</label></div>
+                                            <div class="form-check"><input type="radio" name="job_function" value="Electrical" class="form-check-input"/><label class="form-check-label">Electrical</label></div>
+                                            <div class="form-check"><input type="radio" name="job_function" value="Electronics" class="form-check-input"/><label class="form-check-label">Electronics</label></div>
+                                            <div class="form-check"><input type="radio" name="job_function" value="Environmental" class="form-check-input"/><label class="form-check-label">Environmental</label></div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="form-check"><input type="radio" name="job_function" value="Financial Services" class="form-check-input"/><label class="form-check-label">Financial Services</label></div>
+                                            <div class="form-check"><input type="radio" name="job_function" value="HR Mgmt" class="form-check-input"/><label class="form-check-label">HR Mgmt</label></div>
+                                            <div class="form-check"><input type="radio" name="job_function" value="Manufacturing" class="form-check-input"/><label class="form-check-label">Manufacturing</label></div>
+                                            <div class="form-check"><input type="radio" name="job_function" value="Infor Computer Mgmt" class="form-check-input"/><label class="form-check-label">Infor Computer Mgmt</label></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="border rounded p-3 mb-4 bg-light">
+                                        <h5 class="fw-bold mb-2 text-primary" style="color: #004080 !important;">ATTACH PROOF OF PAYMENT (OPTIONAL)</h5>
+                                        <p class="text-muted small mb-2">If you have already deposited or transferred your application fee, please attach your payment receipt/proof below:</p>
+                                        <div class="row align-items-center">
+                                            <div class="col-md-8">
+                                                <input type="file" name="proof_of_payment" class="form-control" accept="image/*,.pdf"/>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <span class="badge bg-secondary">Optional Attachment</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-center mt-4 d-print-none">
+                                        <button type="submit" class="btn btn-lg px-5 text-white" style="background-color: #004080 !important; border-color: #004080 !important;">Submit Application</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Tracking Page -->
+    <template id="professional_admission_track" name="Track Application Status">
+        <t t-call="website.layout">
+            <div id="wrap" class="container mt-5 mb-5">
+                <div class="row justify-content-center">
+                    <div class="col-md-6">
+                        <div class="card shadow-sm border-0">
+                            <div class="card-header text-white text-center py-4" style="background-color: #004080 !important;">
+                                <h4 class="mb-0">Track Membership Application</h4>
+                            </div>
+                            <div class="card-body p-4">
+                                <t t-if="error">
+                                    <div class="alert alert-danger">
+                                        <t t-esc="error"/>
+                                    </div>
+                                </t>
+                                <t t-if="warning">
+                                    <div class="alert alert-warning border-start border-4 border-warning">
+                                        <h6 class="fw-bold"><i class="fa fa-exclamation-triangle"/> Payment Verification Required</h6>
+                                        <t t-esc="warning"/>
+                                    </div>
+                                </t>
+                                <form action="/professional/track/submit" method="POST">
+                                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                    
+                                    <div class="mb-3">
+                                        <label>First Name *</label>
+                                        <input type="text" name="first_name" class="form-control" required="1"/>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label>Middle Name (Optional)</label>
+                                        <input type="text" name="middle_name" class="form-control"/>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label>Surname *</label>
+                                        <input type="text" name="surname" class="form-control" required="1"/>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label>Email Address *</label>
+                                        <input type="email" name="email" class="form-control" required="1"/>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label>Telephone Number (Cell) *</label>
+                                        <input type="text" name="telephone" class="form-control" required="1"/>
+                                    </div>
+                                    
+                                    <div class="text-center mt-4">
+                                        <button type="submit" class="btn btn-lg px-5 text-white w-100" style="background-color: #004080 !important;">Check Status</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Tracking Result Page -->
+    <template id="professional_admission_track_result" name="Application Status Result">
+        <t t-call="website.layout">
+            <div id="wrap" class="container mt-5 mb-5">
+                <div class="row justify-content-center">
+                    <div class="col-md-6">
+                        <div class="card shadow-sm border-0">
+                            <div class="card-header text-white text-center py-4" style="background-color: #004080 !important;">
+                                <h4 class="mb-0">Application Status</h4>
+                            </div>
+                            <div class="card-body p-4 text-center">
+                                <h5>Hello <t t-esc="application.first_name"/> <t t-esc="application.surname"/>,</h5>
+                                <p class="mt-3">The current status of your membership application is:</p>
+                                
+                                <t t-if="application.state == 'draft'">
+                                    <div class="alert alert-secondary fs-4">Draft</div>
+                                </t>
+                                <t t-elif="application.state == 'submitted'">
+                                    <div class="alert alert-info fs-4">Submitted / Under Review</div>
+                                </t>
+                                <t t-elif="application.state == 'waiting_list'">
+                                    <div class="alert alert-warning fs-4">On Waiting List</div>
+                                </t>
+                                <t t-elif="application.state == 'approved'">
+                                    <div class="alert alert-success fs-4">Approved</div>
+                                    <p>Congratulations! You have been successfully registered as a Professional Member.</p>
+                                </t>
+                                <t t-elif="application.state == 'rejected'">
+                                    <div class="alert alert-danger fs-4">Not Approved</div>
+                                    <p>Please contact the administration office for more details.</p>
+                                </t>
+                                
+                                <a href="/professional/apply" class="btn btn-outline-secondary mt-4">Back to Form</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- Success Page -->
+    <template id="professional_admission_success" name="Application Submitted">
+        <t t-call="website.layout">
+            <div id="wrap" class="container mt-5 mb-5">
+                <div class="row justify-content-center">
+                    <div class="col-md-7">
+                        <div class="card shadow-sm border-0">
+                            <div class="card-header text-white text-center py-4" style="background-color: #004080 !important;">
+                                <h4 class="mb-0">Application Submitted Successfully!</h4>
+                            </div>
+                            <div class="card-body p-4 text-center">
+                                <div class="alert alert-success mb-4">
+                                    <h5 class="fw-bold mb-1">Thank you for applying to PMZ!</h5>
+                                    <div>Your application reference number is: <strong class="fs-5"><t t-esc="app_name"/></strong></div>
+                                </div>
+
+                                <div class="border rounded p-3 mb-4 text-start bg-light">
+                                    <h6 class="fw-bold text-uppercase border-bottom pb-2 mb-3 text-primary" style="color: #004080 !important;">Payment &amp; Billing Notice:</h6>
+                                    <p class="mb-2"><strong>Selected Membership Grading:</strong> <t t-esc="grading_name"/></p>
+                                    <p class="mb-2">
+                                        <strong>Application Fee Required:</strong> 
+                                        <span class="fs-5 fw-bold text-danger">$<t t-esc="'%.2f' % fee_amount"/> USD</span>
+                                    </p>
+                                    <t t-if="inv_name">
+                                        <p class="mb-2"><strong>Invoice Reference:</strong> <t t-esc="inv_name"/></p>
+                                    </t>
+                                    <p class="small text-muted mb-0">
+                                        Please note: You are supposed to pay <strong>$<t t-esc="'%.2f' % fee_amount"/> USD</strong> to complete your registration. Application tracking and admission approval are only accessible once payment has been received and confirmed by the institute.
+                                    </p>
+                                </div>
+
+                                <div class="d-flex justify-content-center gap-3">
+                                    <a href="/professional/track" class="btn btn-outline-primary">Track Application</a>
+                                    <a href="/web/login" class="btn text-white" style="background-color: #004080 !important;">Return to Login</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- CPM & DPM Exam Form -->
+    <template id="exam_form_cpm_dpm" name="CPM &amp; DPM Exam Form">
+        <t t-call="website.layout">
+            <div id="wrap" class="container-fluid mt-4 mb-5 px-md-5">
+                <div class="row justify-content-center">
+                    <div class="col-12">
+                        <div class="card shadow-sm border-0 w-100 bg-white">
+                            <style>
+                                .form-box-square { width: 20px; height: 20px; border: 2px solid #000; display: inline-block; vertical-align: middle; }
+                                .form-line { border-bottom: 1px dotted #000; display: inline-block; }
+                                @media print {
+                                    header, footer, nav, .o_header_standard, #top, .navbar { display: none !important; }
+                                    body { background-color: white !important; padding: 0 !important; margin: 0 !important; font-size: 10pt !important; color: black !important; zoom: 0.9; }
+                                    #wrap { margin: 0 !important; padding: 0 !important; width: 100% !important; max-width: 100% !important; }
+                                    .container-fluid { padding: 0 !important; }
+                                    .card { border: none !important; box-shadow: none !important; margin: 0 !important; width: 100% !important; }
+                                    .page-break { page-break-before: always; }
+                                    /* Reduce spacing on print to fit 2 pages */
+                                    .mt-5, .mb-5, .pt-5, .pb-5 { margin-top: 0.5rem !important; margin-bottom: 0.5rem !important; padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; }
+                                    .mt-4, .mb-4, .pt-4, .pb-4 { margin-top: 0.25rem !important; margin-bottom: 0.25rem !important; padding-top: 0.25rem !important; padding-bottom: 0.25rem !important; }
+                                    h3, h4, h5 { margin-bottom: 0.25rem !important; margin-top: 0.25rem !important; font-size: 12pt !important; }
+                                    .fs-5 { font-size: 10pt !important; }
+                                    div[style*="line-height: 2.2;"] { line-height: 1.5 !important; }
+                                    p[style*="line-height: 1.6;"] { line-height: 1.2 !important; }
+                                    ol[style*="line-height: 1.8;"] { line-height: 1.2 !important; }
+                                    .border-3 { border-width: 1px !important; }
+                                    .table { margin-bottom: 0.25rem !important; }
+                                    .table td, .table th { padding: 0.2rem !important; }
+                                    @page { size: A4 portrait; margin: 5mm; }
+                                }
+                            </style>
+                            <div class="card-header bg-white border-0 text-end d-print-none">
+                                <button type="button" onclick="window.print()" class="btn btn-primary btn-lg fw-bold">
+                                    <i class="fa fa-download"/> Download PDF
+                                </button>
+                            </div>
+                            <div class="card-body p-0 p-print-0 text-dark">
+                                <!-- PAGE 1 -->
+                                <div class="position-relative">
+                                    <div class="row align-items-center mb-5 pb-3 border-bottom border-dark border-3">
+                                        <div class="col-md-3 text-start">
+                                            <t t-if="res_company.logo">
+                                                <img t-att-src="image_data_uri(res_company.logo)" alt="Logo" style="max-height: 100px;"/>
+                                            </t>
+                                        </div>
+                                        <div class="col-md-5 text-start" style="font-size: 14px;">
+                                            <h5 class="fw-bold mb-1 text-uppercase" t-esc="res_company.name"/>
+                                            <div><t t-esc="res_company.street"/></div>
+                                            <div><t t-esc="res_company.street2"/></div>
+                                            <div><t t-esc="res_company.city"/></div>
+                                        </div>
+                                        <div class="col-md-4 text-start" style="font-size: 14px;">
+                                            <div><strong>Website:</strong> <span t-esc="res_company.website"/></div>
+                                            <div><strong>E-mail:</strong> <span t-esc="res_company.email"/></div>
+                                            <div><strong>Tel:</strong> <span t-esc="res_company.phone"/></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-4">
+                                        <div class="col-8">
+                                            <h4 class="fw-bold mb-3 text-decoration-underline">IMPORTANT</h4>
+                                            <ol class="mb-0 fw-bold" style="line-height: 1.8;">
+                                                <li>Please ensure that page 1 and 2 of this form are completed in every respect.</li>
+                                                <li>Please attach certified copies of academic and identification certificates.</li>
+                                                <li>Examination registration fees are USD$ 25 per module for CPM and USD $30 for DPM, proof of payment must be attached to this form.</li>
+                                                <li>Examination registration is invalid without valid PMZ membership.</li>
+                                            </ol>
+                                        </div>
+                                        <div class="col-4 text-end">
+                                            <div class="border border-dark d-inline-block text-center p-2" style="width: 150px; height: 150px;">
+                                                <br/><br/><br/>
+                                                <span class="fw-bold">College Date Stamp</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <h3 class="text-center fw-bold text-decoration-underline mb-5 mt-4">EXAMINATION ENTRY FORM (CPM&amp;DPM only)</h3>
+                                    
+                                    <div class="mb-4 fs-5" style="line-height: 2.2;">
+                                        <div>
+                                            <strong>1. Surname:</strong> <span class="form-line flex-grow-1" style="width: 45%;"></span> 
+                                            <strong>Mr/Mrs/Miss:</strong> <span class="form-line flex-grow-1" style="width: 20%;"></span>
+                                        </div>
+                                        <div>
+                                            <strong>2. Forenames:</strong> <span class="form-line flex-grow-1" style="width: 45%;"></span> 
+                                            <strong>Date of Birth:</strong> <span class="form-line flex-grow-1" style="width: 20%;"></span>
+                                        </div>
+                                        <div>
+                                            <strong>3. I.D number:</strong> <span class="form-line flex-grow-1" style="width: 78%;"></span>
+                                        </div>
+                                        <div>
+                                            <strong>4. Address:</strong> <span class="form-line flex-grow-1" style="width: 80%;"></span>
+                                        </div>
+                                        <div>
+                                            <span class="form-line flex-grow-1" style="width: 100%;"></span>
+                                        </div>
+                                        <div>
+                                            <strong>Telephone: Home:</strong> <span class="form-line flex-grow-1" style="width: 20%;"></span> 
+                                            <strong>Business:</strong> <span class="form-line flex-grow-1" style="width: 20%;"></span> 
+                                            <strong>Mobile:</strong> <span class="form-line flex-grow-1" style="width: 20%;"></span>
+                                        </div>
+                                        <div>
+                                            <strong>Email:</strong> <span class="form-line flex-grow-1" style="width: 85%;"></span>
+                                        </div>
+                                        <br/>
+                                        <div>
+                                            <strong>5. PMZ Student Membership No:</strong> <span class="form-line flex-grow-1" style="width: 60%;"></span>
+                                        </div>
+                                        <div>
+                                            <strong>6. Examination Session:</strong> <span class="form-line flex-grow-1" style="width: 70%;"></span>
+                                        </div>
+                                        <div>
+                                            <strong>7. Name of College where you received tuition:</strong> <span class="form-line flex-grow-1" style="width: 50%;"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-5 pt-5 text-center fw-bold fs-5">
+                                        NB: This PMZ examination entry form has 2 pages, all sections must be completed
+                                    </div>
+                                </div>
+                                
+                                <!-- PAGE BREAK -->
+                                <div class="page-break"></div>
+                                
+                                <!-- PAGE 2 -->
+                                <div class="mt-5 pt-print-4">
+                                    <div class="fs-5 mb-4">
+                                        <strong>8. Please insert an X in the boxes opposite to the subjects being attempted at this examination.</strong>
+                                    </div>
+
+                                    <h4 class="fw-bold mb-3">Part 1 Certificate in Project Management (CPM)</h4>
+                                    <table class="table table-borderless fs-5 mb-4">
+                                        <thead>
+                                            <tr>
+                                                <th class="w-50">Module Title</th>
+                                                <th class="w-25">Module code</th>
+                                                <th class="w-25"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Introduction to Project Management</td>
+                                                <td>IPM01</td>
+                                                <td><div class="form-box-square"></div></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Project Planning</td>
+                                                <td>PP02</td>
+                                                <td><div class="form-box-square"></div></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Project Implementation</td>
+                                                <td>PIPML03</td>
+                                                <td><div class="form-box-square"></div></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Project Monitoring and Evaluation</td>
+                                                <td>PM&amp;E04</td>
+                                                <td><div class="form-box-square"></div></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    
+                                    <div class="fs-5 fw-bold mb-5">
+                                        9. Number of CPM modules being attempted: <span class="form-line flex-grow-1" style="width: 200px;"></span>
+                                    </div>
+
+                                    <h4 class="fw-bold mb-3">10. Part 2 Diploma in Project Management (DPM)</h4>
+                                    <table class="table table-borderless fs-5 mb-4">
+                                        <thead>
+                                            <tr>
+                                                <th class="w-50">Module Title</th>
+                                                <th class="w-25">Module Code</th>
+                                                <th class="w-25"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Project Management Information Systems</td>
+                                                <td>PIMS05</td>
+                                                <td><div class="form-box-square"></div></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Project Procurement &amp; Contracts Management</td>
+                                                <td>PPCM06</td>
+                                                <td><div class="form-box-square"></div></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Project Risk Management</td>
+                                                <td>PRM07</td>
+                                                <td><div class="form-box-square"></div></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Project Cost Management</td>
+                                                <td>PCM08</td>
+                                                <td><div class="form-box-square"></div></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Project Time Management</td>
+                                                <td>PTM09</td>
+                                                <td><div class="form-box-square"></div></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                    <div class="fs-5 fw-bold mb-5">
+                                        11. Number of DPM modules being attempted: <span class="form-line flex-grow-1" style="width: 200px;"></span>
+                                    </div>
+
+                                    <h4 class="fw-bold text-decoration-underline mb-3">DECLARATION</h4>
+                                    <p class="fs-5 mb-5" style="line-height: 1.6;">
+                                        I hereby declare that I have adequately prepared for the examination and will not hold the institute 
+                                        liable for any inabilities to sit for the examination caused by myself after registration, I submit that I 
+                                        have read and understood PMZ rules and regulations in the prospectus.
+                                    </p>
+                                    
+                                    <div class="row fs-5 mb-5">
+                                        <div class="col-8">
+                                            <strong>Signature:</strong> <span class="form-line flex-grow-1" style="width: 60%;"></span>
+                                        </div>
+                                        <div class="col-4">
+                                            <strong>Date:</strong> <span class="form-line flex-grow-1" style="width: 60%;"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="border border-2 border-dark p-4 mt-5 fs-5 bg-light" style="line-height: 2;">
+                                        <h4 class="fw-bold mb-3 text-decoration-underline">FOR OFFICIAL USE ONLY:</h4>
+                                        <div><strong>Amount received:</strong> <span class="form-line flex-grow-1" style="width: 70%;"></span></div>
+                                        <div><strong>Cash/Cheque/RTGS</strong></div>
+                                        <div class="row mt-2">
+                                            <div class="col-6"><strong>Receipt No:</strong> <span class="form-line flex-grow-1" style="width: 60%;"></span></div>
+                                            <div class="col-6"><strong>Exam Session Booked for:</strong> <span class="form-line flex-grow-1" style="width: 40%;"></span></div>
+                                        </div>
+                                        <div class="mt-2"><strong>Official Name:</strong> <span class="form-line flex-grow-1" style="width: 75%;"></span></div>
+                                        <div class="mt-2"><strong>Signature:</strong> <span class="form-line flex-grow-1" style="width: 80%;"></span></div>
+                                    </div>
+                                    
+                                    <div class="mt-5 pt-5 text-center fw-bold fs-5">
+                                        NB: This PMZ examination entry form has 2 pages, all sections must be completed
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+    <!-- CME Exam Form -->
+    <template id="exam_form_cme" name="CME Exam Form">
+        <t t-call="website.layout">
+            <div id="wrap" class="container-fluid mt-4 mb-5 px-md-5">
+                <div class="row justify-content-center">
+                    <div class="col-12">
+                        <div class="card shadow-sm border-0 w-100 bg-white">
+                            <style>
+                                .form-box-square { width: 20px; height: 20px; border: 2px solid #000; display: inline-block; vertical-align: middle; }
+                                .form-line { border-bottom: 1px dotted #000; display: inline-block; }
+                                @media print {
+                                    header, footer, nav, .o_header_standard, #top, .navbar { display: none !important; }
+                                    body { background-color: white !important; padding: 0 !important; margin: 0 !important; font-size: 10pt !important; color: black !important; zoom: 0.9; }
+                                    #wrap { margin: 0 !important; padding: 0 !important; width: 100% !important; max-width: 100% !important; }
+                                    .container-fluid { padding: 0 !important; }
+                                    .card { border: none !important; box-shadow: none !important; margin: 0 !important; width: 100% !important; }
+                                    .page-break { page-break-before: always; }
+                                    /* Reduce spacing on print to fit 2 pages */
+                                    .mt-5, .mb-5, .pt-5, .pb-5 { margin-top: 0.5rem !important; margin-bottom: 0.5rem !important; padding-top: 0.5rem !important; padding-bottom: 0.5rem !important; }
+                                    .mt-4, .mb-4, .pt-4, .pb-4 { margin-top: 0.25rem !important; margin-bottom: 0.25rem !important; padding-top: 0.25rem !important; padding-bottom: 0.25rem !important; }
+                                    h3, h4, h5 { margin-bottom: 0.25rem !important; margin-top: 0.25rem !important; font-size: 12pt !important; }
+                                    .fs-5 { font-size: 10pt !important; }
+                                    div[style*="line-height: 2.2;"] { line-height: 1.5 !important; }
+                                    p[style*="line-height: 1.6;"] { line-height: 1.2 !important; }
+                                    ol[style*="line-height: 1.8;"] { line-height: 1.2 !important; }
+                                    .border-3 { border-width: 1px !important; }
+                                    .table { margin-bottom: 0.25rem !important; }
+                                    .table td, .table th { padding: 0.2rem !important; }
+                                    @page { size: A4 portrait; margin: 5mm; }
+                                }
+                            </style>
+                            <div class="card-header bg-white border-0 text-end d-print-none">
+                                <button type="button" onclick="window.print()" class="btn btn-primary btn-lg fw-bold">
+                                    <i class="fa fa-download"/> Download PDF
+                                </button>
+                            </div>
+                            <div class="card-body p-0 p-print-0 text-dark">
+                                <!-- PAGE 1 -->
+                                <div class="position-relative">
+                                    <div class="row align-items-center mb-5 pb-3 border-bottom border-dark border-3">
+                                        <div class="col-md-3 text-start">
+                                            <t t-if="res_company.logo">
+                                                <img t-att-src="image_data_uri(res_company.logo)" alt="Logo" style="max-height: 100px;"/>
+                                            </t>
+                                        </div>
+                                        <div class="col-md-5 text-start" style="font-size: 14px;">
+                                            <h5 class="fw-bold mb-1 text-uppercase" t-esc="res_company.name"/>
+                                            <div><t t-esc="res_company.street"/></div>
+                                            <div><t t-esc="res_company.street2"/></div>
+                                            <div><t t-esc="res_company.city"/></div>
+                                        </div>
+                                        <div class="col-md-4 text-start" style="font-size: 14px;">
+                                            <div><strong>Website:</strong> <span t-esc="res_company.website"/></div>
+                                            <div><strong>E-mail:</strong> <span t-esc="res_company.email"/></div>
+                                            <div><strong>Tel:</strong> <span t-esc="res_company.phone"/></div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row mb-4">
+                                        <div class="col-8">
+                                            <h4 class="fw-bold mb-3 text-decoration-underline">IMPORTANT</h4>
+                                            <ol class="mb-0 fw-bold" style="line-height: 1.8;">
+                                                <li>Please ensure that page 1 and 2 of this form are completed in every respect.</li>
+                                                <li>Please attach certified copies of academic and identification certificates.</li>
+                                                <li>Examination registration fees are USD $25 per module for CM&amp;E, proof of payment must be attached to this form.</li>
+                                                <li>Examination registration is invalid without valid PMZ membership.</li>
+                                            </ol>
+                                        </div>
+                                        <div class="col-4 text-end">
+                                            <div class="border border-dark d-inline-block text-center p-2" style="width: 150px; height: 150px;">
+                                                <br/><br/><br/>
+                                                <span class="fw-bold">College Date Stamp</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <h3 class="text-center fw-bold text-decoration-underline mb-5 mt-4">EXAMINATION ENTRY FORM (CM&amp;E only)</h3>
+                                    
+                                    <div class="mb-4 fs-5" style="line-height: 2.2;">
+                                        <div>
+                                            <strong>1. Surname:</strong> <span class="form-line flex-grow-1" style="width: 45%;"></span> 
+                                            <strong>Mr/Mrs/Miss:</strong> <span class="form-line flex-grow-1" style="width: 20%;"></span>
+                                        </div>
+                                        <div>
+                                            <strong>2. Forenames:</strong> <span class="form-line flex-grow-1" style="width: 45%;"></span> 
+                                            <strong>Date of Birth:</strong> <span class="form-line flex-grow-1" style="width: 20%;"></span>
+                                        </div>
+                                        <div>
+                                            <strong>3. I.D number:</strong> <span class="form-line flex-grow-1" style="width: 78%;"></span>
+                                        </div>
+                                        <div>
+                                            <strong>4. Address:</strong> <span class="form-line flex-grow-1" style="width: 80%;"></span>
+                                        </div>
+                                        <div>
+                                            <span class="form-line flex-grow-1" style="width: 100%;"></span>
+                                        </div>
+                                        <div>
+                                            <strong>Telephone: Home:</strong> <span class="form-line flex-grow-1" style="width: 20%;"></span> 
+                                            <strong>Business:</strong> <span class="form-line flex-grow-1" style="width: 20%;"></span> 
+                                            <strong>Mobile:</strong> <span class="form-line flex-grow-1" style="width: 20%;"></span>
+                                        </div>
+                                        <div>
+                                            <strong>Email:</strong> <span class="form-line flex-grow-1" style="width: 85%;"></span>
+                                        </div>
+                                        <br/>
+                                        <div>
+                                            <strong>5. PMZ Student Membership No:</strong> <span class="form-line flex-grow-1" style="width: 60%;"></span>
+                                        </div>
+                                        <div>
+                                            <strong>6. Examination Session:</strong> <span class="form-line flex-grow-1" style="width: 70%;"></span>
+                                        </div>
+                                        <div>
+                                            <strong>7. Name of College where you received tuition:</strong> <span class="form-line flex-grow-1" style="width: 50%;"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-5 pt-5 text-center fw-bold fs-5">
+                                        NB: This PMZ examination entry form has 2 pages, all sections must be completed
+                                    </div>
+                                </div>
+                                
+                                <!-- PAGE BREAK -->
+                                <div class="page-break"></div>
+                                
+                                <!-- PAGE 2 -->
+                                <div class="mt-5 pt-print-4">
+                                    <div class="fs-5 mb-4">
+                                        <strong>8. Please insert an X in the boxes opposite to the subjects being attempted at this examination.</strong>
+                                    </div>
+
+                                    <h4 class="fw-bold mb-3">Part 1 Certificate in Project Monitoring and evaluation (CM&amp;E)</h4>
+                                    <table class="table table-borderless fs-5 mb-4">
+                                        <thead>
+                                            <tr>
+                                                <th class="w-50">Module Title</th>
+                                                <th class="w-25">Module code</th>
+                                                <th class="w-25"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Introduction to Project Management</td>
+                                                <td>IPM01</td>
+                                                <td><div class="form-box-square"></div></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Principles of Project Monitoring and Evaluation</td>
+                                                <td>PME02</td>
+                                                <td><div class="form-box-square"></div></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Qualitative Evaluation techniques</td>
+                                                <td>QLET03</td>
+                                                <td><div class="form-box-square"></div></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Quantitative Evaluation techniques</td>
+                                                <td>QTET04</td>
+                                                <td><div class="form-box-square"></div></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    
+                                    <div class="fs-5 fw-bold mb-5">
+                                        11. Number of CM&amp;E modules being attempted: <span class="form-line flex-grow-1" style="width: 200px;"></span>
+                                    </div>
+
+                                    <h4 class="fw-bold text-decoration-underline mb-3">DECLARATION</h4>
+                                    <p class="fs-5 mb-5" style="line-height: 1.6;">
+                                        I hereby declare that I have adequately prepared for the examination and will not hold the institute 
+                                        liable for any inabilities to sit for the examination caused by myself after registration, I submit that I 
+                                        have read and understood PMZ rules and regulations in the prospectus.
+                                    </p>
+                                    
+                                    <div class="row fs-5 mb-5">
+                                        <div class="col-8">
+                                            <strong>Signature:</strong> <span class="form-line flex-grow-1" style="width: 60%;"></span>
+                                        </div>
+                                        <div class="col-4">
+                                            <strong>Date:</strong> <span class="form-line flex-grow-1" style="width: 60%;"></span>
+                                        </div>
+                                    </div>
+
+                                    <div class="border border-2 border-dark p-4 mt-5 fs-5 bg-light" style="line-height: 2;">
+                                        <h4 class="fw-bold mb-3 text-decoration-underline">FOR OFFICIAL USE ONLY:</h4>
+                                        <div><strong>Amount received:</strong> <span class="form-line flex-grow-1" style="width: 70%;"></span></div>
+                                        <div><strong>Cash/Cheque/RTGS</strong></div>
+                                        <div class="row mt-2">
+                                            <div class="col-6"><strong>Receipt No:</strong> <span class="form-line flex-grow-1" style="width: 60%;"></span></div>
+                                            <div class="col-6"><strong>Exam Session Booked for:</strong> <span class="form-line flex-grow-1" style="width: 40%;"></span></div>
+                                        </div>
+                                        <div class="mt-2"><strong>Official Name:</strong> <span class="form-line flex-grow-1" style="width: 75%;"></span></div>
+                                        <div class="mt-2"><strong>Signature:</strong> <span class="form-line flex-grow-1" style="width: 80%;"></span></div>
+                                    </div>
+                                    
+                                    <div class="mt-5 pt-5 text-center fw-bold fs-5">
+                                        NB: This PMZ examination entry form has 2 pages, all sections must be completed
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+</odoo>

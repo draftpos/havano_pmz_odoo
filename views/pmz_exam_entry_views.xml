@@ -1,0 +1,947 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Exam Entry Form View -->
+    <record id="view_pmz_exam_entry_form" model="ir.ui.view">
+        <field name="name">pmz.exam.entry.form</field>
+        <field name="model">pmz.exam.entry</field>
+        <field name="arch" type="xml">
+            <form string="Examination Entry Form">
+                <header>
+                    <button name="action_bill_exam" string="Generate Invoice" type="object" class="btn-info" invisible="invoice_id != False"/>
+                    <button name="action_register_payment" string="Register Payment" type="object" class="btn-success" invisible="not is_paid or not invoice_id"/>
+                    <button name="action_submit" string="Submit Entry" type="object" class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_verify" string="Verify Payment" type="object" class="btn-warning" invisible="state != 'submitted'"/>
+                    <button name="action_approve" string="Approve &amp; Register" type="object" class="btn-success" invisible="state != 'verified'"/>
+                    <button name="action_print_form" string="Print / Download PDF" type="object" class="btn-secondary" icon="fa-print"/>
+                    <button name="action_cancel" string="Cancel" type="object" class="btn-danger" invisible="state in ('approved', 'cancelled')"/>
+                    <button name="action_draft" string="Reset to Draft" type="object" invisible="state not in ('cancelled', 'approved')"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,verified,approved"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="%(account.action_move_out_invoice_type)d" type="action" class="oe_stat_button" icon="fa-pencil-square-o" invisible="not invoice_id" context="{'default_move_type': 'out_invoice'}">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Invoice</span>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="oe_title mb-3">
+                        <span class="o_form_label text-muted">Project Management Zimbabwe Examination Entry</span>
+                        <h1 class="d-flex align-items-center gap-2">
+                            <field name="name" readonly="1"/>
+                            <field name="exam_type" widget="badge" decoration-primary="exam_type == 'cpm_dpm'" decoration-success="exam_type == 'cme'" decoration-info="exam_type == 'pgdpm'"/>
+                        </h1>
+                    </div>
+
+                    <!-- Top Details -->
+                    <group>
+                        <group string="Exam Setup">
+                            <field name="exam_type" widget="radio" options="{'horizontal': true}"/>
+                            <field name="exam_session" placeholder="e.g. November 2026"/>
+                            <field name="company_id" groups="base.group_multi_company" options="{'no_create': True, 'no_open': True}" invisible="1"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                        <group string="Member Quick Link">
+                            <field name="member_id" options="{'no_create': True}" placeholder="Auto-fill from PMZ Member profile..."/>
+                            <field name="student_membership_no" placeholder="e.g. STU-2026-001"/>
+                        </group>
+                    </group>
+
+                    <!-- Payment & Billing Verification Section -->
+                    <group string="Payment &amp; Billing Verification">
+                        <group>
+                            <field name="is_paid" widget="boolean_toggle"/>
+                            <field name="pay_amount" string="Amount Paid" invisible="not is_paid" required="is_paid"/>
+                            <field name="journal_id" string="Account Paid To" options="{'no_create': True}" invisible="not is_paid" required="is_paid"/>
+                            <button name="action_register_payment" type="object" string="Process Payment" class="btn-success btn-sm mt-2" invisible="not is_paid"/>
+                        </group>
+                        <group>
+                            <field name="proof_of_payment" filename="proof_of_payment_filename" widget="binary"/>
+                            <field name="proof_of_payment_filename" invisible="1"/>
+                            <field name="invoice_id" readonly="1"/>
+                            <field name="total_exam_fee" widget="monetary" options="{'currency_field': 'currency_id'}" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <!-- PAGE 1: Candidate & College Information (Sections 1 to 7) -->
+                        <page string="Page 1: Candidate &amp; College Details (1-7)" name="page_1_details">
+                            <div class="alert alert-warning py-2 mb-3 border-start border-4 border-warning" role="alert">
+                                <h6 class="fw-bold mb-1 text-uppercase">IMPORTANT:</h6>
+                                <ol class="small mb-0 ps-3" style="line-height: 1.5;">
+                                    <li>Please ensure that page 1 and 2 of this form are completed in every respect.</li>
+                                    <li>Please attach certified copies of academic and identification certificates.</li>
+                                    <li>Examination registration fees are <strong>RTGS$250 (USD$25)</strong> per module for CPM and <strong>RTGS$300 (USD$30)</strong> per module for DPM. Proof of payment must be attached to this form.</li>
+                                    <li>Examination registration is invalid without valid PMZ membership.</li>
+                                </ol>
+                            </div>
+
+                            <div class="row">
+                                <!-- Personal Info (1, 2, 3) -->
+                                <div class="col-md-6">
+                                    <div class="border rounded p-3 mb-3 bg-light">
+                                        <h6 class="fw-bold text-primary mb-3 pb-1 border-bottom">1, 2 &amp; 3. Personal Particulars</h6>
+                                        <group>
+                                            <group>
+                                                <field name="title" string="Mr/Mrs/Miss"/>
+                                                <field name="surname" string="1. Surname" placeholder="Surname"/>
+                                                <field name="forenames" string="2. Forenames" placeholder="Given names"/>
+                                            </group>
+                                            <group>
+                                                <field name="dob" string="Date of Birth"/>
+                                                <field name="id_no" string="3. I.D number" placeholder="National ID / Passport"/>
+                                            </group>
+                                        </group>
+                                    </div>
+                                </div>
+
+                                <!-- Contact Info (4) -->
+                                <div class="col-md-6">
+                                    <div class="border rounded p-3 mb-3 bg-light">
+                                        <h6 class="fw-bold text-primary mb-3 pb-1 border-bottom">4. Address &amp; Contact Details</h6>
+                                        <group>
+                                            <field name="address" string="4. Address" placeholder="Residential &amp; Postal Address" rows="2"/>
+                                            <group>
+                                                <field name="telephone_mobile" string="Telephone: Mobile" widget="phone" placeholder="+263 77 ..."/>
+                                                <field name="email" string="Email" widget="email" placeholder="candidate@example.com"/>
+                                            </group>
+                                            <group>
+                                                <field name="telephone_home" string="Home" widget="phone"/>
+                                                <field name="telephone_business" string="Business" widget="phone"/>
+                                            </group>
+                                        </group>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Sections 5, 6, 7 & College Date Stamp Box -->
+                            <div class="row">
+                                <div class="col-md-7">
+                                    <div class="border rounded p-3 mb-3">
+                                        <h6 class="fw-bold text-primary mb-3 pb-1 border-bottom">5, 6 &amp; 7. Membership &amp; Tuition Centre</h6>
+                                        <group>
+                                            <field name="student_membership_no" string="5. PMZ Student Membership No:"/>
+                                            <field name="exam_session" string="6. Examination Session:"/>
+                                            <field name="college_name" string="7. Name of College where you received tuition:" placeholder="e.g. Speciss College, Harare Polytechnic, PMZ Centre..."/>
+                                        </group>
+                                    </div>
+                                </div>
+                                <div class="col-md-5">
+                                    <div class="border border-2 border-secondary rounded p-3 mb-3 bg-light text-center">
+                                        <h6 class="fw-bold text-dark text-uppercase mb-1">College Date Stamp</h6>
+                                        <p class="small text-muted mb-2">College official date stamp &amp; verification</p>
+                                        <group>
+                                            <field name="college_stamp_received" string="Stamp Verified"/>
+                                            <field name="college_stamp_date" string="Stamp Date"/>
+                                            <field name="college_date_stamp" string="Stamp Details / Ref"/>
+                                            <field name="college_stamp_image" widget="image" class="oe_avatar" options="{'size': [90, 90]}" string="Stamp Scan"/>
+                                        </group>
+                                    </div>
+                                </div>
+                            </div>
+                        </page>
+
+                        <!-- PAGE 2: CPM & DPM Modules (8-11), Declaration & Official Use -->
+                        <page string="Page 2: CPM &amp; DPM Modules, Declaration &amp; Official Use (8-11)" name="cpm_dpm_page_2" invisible="exam_type != 'cpm_dpm'">
+                            <div class="alert alert-info py-2" role="alert">
+                                <strong>8. Please insert an X in the boxes opposite to the subjects being attempted at this examination.</strong>
+                            </div>
+
+                            <div class="row">
+                                <!-- Part 1: CPM -->
+                                <div class="col-md-6 border-end">
+                                    <div class="p-2 mb-2 bg-primary bg-opacity-10 rounded">
+                                        <h5 class="fw-bold text-primary m-0">Part 1 Certificate in Project Management (CPM)</h5>
+                                    </div>
+                                    <table class="table table-sm table-bordered">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Module Title</th>
+                                                <th style="width: 120px;">Module code</th>
+                                                <th class="text-center" style="width: 80px;">Select</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Introduction to Project Management</td>
+                                                <td><strong>IPM01</strong></td>
+                                                <td class="text-center"><field name="cpm_ipm01"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Project Planning</td>
+                                                <td><strong>PP02</strong></td>
+                                                <td class="text-center"><field name="cpm_pp02"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Project Implementation</td>
+                                                <td><strong>PIPML03</strong></td>
+                                                <td class="text-center"><field name="cpm_pipml03"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Project Monitoring and Evaluation</td>
+                                                <td><strong>PM&amp;E04</strong></td>
+                                                <td class="text-center"><field name="cpm_pme04"/></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <div class="d-flex justify-content-between align-items-center p-2 bg-light border rounded">
+                                        <strong class="text-dark">9. Number of CPM modules being attempted:</strong>
+                                        <span class="fs-5 fw-bold text-primary"><field name="cpm_module_count" readonly="1"/></span>
+                                    </div>
+                                </div>
+
+                                <!-- Part 2: DPM -->
+                                <div class="col-md-6">
+                                    <div class="p-2 mb-2 bg-success bg-opacity-10 rounded">
+                                        <h5 class="fw-bold text-success m-0">10. Part 2 Diploma in Project Management (DPM)</h5>
+                                    </div>
+                                    <table class="table table-sm table-bordered">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Module Title</th>
+                                                <th style="width: 120px;">Module Code</th>
+                                                <th class="text-center" style="width: 80px;">Select</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Project Management Information Systems</td>
+                                                <td><strong>PIMS05</strong></td>
+                                                <td class="text-center"><field name="dpm_pims05"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Project Procurement &amp; Contracts Management</td>
+                                                <td><strong>PPCM06</strong></td>
+                                                <td class="text-center"><field name="dpm_ppcm06"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Project Risk Management</td>
+                                                <td><strong>PRM07</strong></td>
+                                                <td class="text-center"><field name="dpm_prm07"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Project Cost Management</td>
+                                                <td><strong>PCM08</strong></td>
+                                                <td class="text-center"><field name="dpm_pcm08"/></td>
+                                            </tr>
+                                            <tr>
+                                                <td>Project Time Management</td>
+                                                <td><strong>PTM09</strong></td>
+                                                <td class="text-center"><field name="dpm_ptm09"/></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <div class="d-flex justify-content-between align-items-center p-2 bg-light border rounded">
+                                        <strong class="text-dark">11. Number of DPM modules being attempted:</strong>
+                                        <span class="fs-5 fw-bold text-success"><field name="dpm_module_count" readonly="1"/></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Total Summary Row -->
+                            <div class="row mt-3">
+                                <div class="col-md-4">
+                                    <div class="p-2 border rounded bg-light text-center">
+                                        <span class="small text-muted d-block">Total Modules Attempted</span>
+                                        <span class="fs-4 fw-bold text-dark"><field name="total_modules_attempted" readonly="1"/></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="p-2 border rounded bg-light text-center">
+                                        <span class="small text-muted d-block">Total Fee Due (USD)</span>
+                                        <span class="fs-4 fw-bold text-success"><field name="total_exam_fee" widget="monetary" options="{'currency_field': 'currency_id'}" readonly="1"/></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="p-2 border rounded bg-light text-center">
+                                        <span class="small text-muted d-block">Total Fee Due (RTGS$)</span>
+                                        <span class="fs-4 fw-bold text-primary">RTGS$ <field name="rtgs_total_exam_fee" readonly="1"/></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- DECLARATION Section -->
+                            <div class="border rounded p-3 mt-4 bg-light">
+                                <h6 class="fw-bold text-uppercase text-decoration-underline text-danger mb-2">DECLARATION</h6>
+                                <p class="small text-dark mb-3" style="line-height: 1.6;">
+                                    <em>"I hereby declare that I have adequately prepared for the examination and will not hold the institute liable for any inabilities to sit for the examination caused by myself after registration, I submit that I have read and understood PMZ rules and regulations in the prospectus."</em>
+                                </p>
+                                <div class="row align-items-center mb-2">
+                                    <div class="col-md-4">
+                                        <field name="declaration_agreed" string="I Agree &amp; Declare"/>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <group>
+                                            <field name="candidate_signature" string="Signature:"/>
+                                        </group>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <group>
+                                            <field name="declaration_date" string="Date:"/>
+                                        </group>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- FOR OFFICIAL USE ONLY Section -->
+                            <div class="border border-2 border-dark rounded p-3 mt-3 bg-white">
+                                <h6 class="fw-bold text-uppercase text-decoration-underline text-dark mb-3">FOR OFFICIAL USE ONLY:</h6>
+                                <group>
+                                    <group>
+                                        <field name="amount_received" string="Amount received:" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                        <field name="payment_method" string="Cash/Cheque/RTGS:"/>
+                                    </group>
+                                    <group>
+                                        <field name="receipt_no" string="Receipt No:"/>
+                                        <field name="session_booked" string="Exam Session Booked for:"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <group>
+                                        <field name="official_name" string="Official Name:"/>
+                                    </group>
+                                    <group>
+                                        <field name="official_signature" string="Signature:"/>
+                                        <field name="official_date" string="Date:"/>
+                                    </group>
+                                </group>
+                            </div>
+                        </page>
+
+                        <!-- PGDPM Modules Tab (Third Form) -->
+                        <page string="PGDPM Modules (Sem 1 &amp; 2)" name="pgdpm_modules" invisible="exam_type != 'pgdpm'">
+                            <div class="alert alert-info py-2" role="alert">
+                                <strong>Exam Registration Fees:</strong> Examination registration fees for PGDPM are <strong>USD $40 per module</strong>. Please attach certified copies of CV, academic, professional, and identification certificates.
+                            </div>
+                            <div class="row">
+                                <!-- Semester 1 -->
+                                <div class="col-md-6 border-end">
+                                    <div class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom">
+                                        <h5 class="fw-bold text-primary m-0">Semester 1 PGDPM</h5>
+                                        <field name="pgdpm_sem1_sitting" widget="radio" options="{'horizontal': true}"/>
+                                    </div>
+                                    <group>
+                                        <field name="pgdpm_pdp01"/>
+                                        <field name="pgdpm_pppm02"/>
+                                        <field name="pgdpm_pimpl03"/>
+                                        <field name="pgdpm_pme04"/>
+                                    </group>
+                                    <div class="d-flex justify-content-between p-2 bg-light rounded mt-2">
+                                        <span class="fw-semibold">Semester 1 Modules Attempted:</span>
+                                        <span class="fw-bold fs-6"><field name="pgdpm_sem1_count" readonly="1"/></span>
+                                    </div>
+                                </div>
+
+                                <!-- Semester 2 -->
+                                <div class="col-md-6">
+                                    <div class="d-flex justify-content-between align-items-center mb-2 pb-1 border-bottom">
+                                        <h5 class="fw-bold text-success m-0">Semester 2 PGDPM</h5>
+                                        <field name="pgdpm_sem2_sitting" widget="radio" options="{'horizontal': true}"/>
+                                    </div>
+                                    <group>
+                                        <field name="pgdpm_pmis05"/>
+                                        <field name="pgdpm_plcm06"/>
+                                        <field name="pgdpm_prm07"/>
+                                        <field name="pgdpm_pvcm08"/>
+                                        <field name="pgdpm_ptm09"/>
+                                    </group>
+                                    <div class="d-flex justify-content-between p-2 bg-light rounded mt-2">
+                                        <span class="fw-semibold">Semester 2 Modules Attempted:</span>
+                                        <span class="fw-bold fs-6"><field name="pgdpm_sem2_count" readonly="1"/></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- PGDPM Declaration & Official Use -->
+                            <div class="border rounded p-3 mt-4 bg-light">
+                                <h6 class="fw-bold text-uppercase text-decoration-underline mb-2">DECLARATION</h6>
+                                <p class="small text-muted mb-2">
+                                    <em>"I hereby declare that I have adequately prepared for the examination and will not hold the institute liable for any inabilities to sit for the examination caused by myself after registration..."</em>
+                                </p>
+                                <div class="row">
+                                    <div class="col-md-4"><field name="declaration_agreed"/></div>
+                                    <div class="col-md-4"><field name="candidate_signature" string="Signature:"/></div>
+                                    <div class="col-md-4"><field name="declaration_date" string="Date:"/></div>
+                                </div>
+                            </div>
+                            <div class="border border-dark rounded p-3 mt-3">
+                                <h6 class="fw-bold text-uppercase text-decoration-underline mb-2">FOR OFFICIAL USE ONLY:</h6>
+                                <group>
+                                    <group>
+                                        <field name="amount_received" string="Amount received:"/>
+                                        <field name="payment_method"/>
+                                        <field name="receipt_no"/>
+                                    </group>
+                                    <group>
+                                        <field name="session_booked"/>
+                                        <field name="official_name"/>
+                                        <field name="official_signature"/>
+                                    </group>
+                                </group>
+                            </div>
+                        </page>
+
+                        <!-- CM&E Modules Tab -->
+                        <page string="CM&amp;E Modules" name="cme_modules" invisible="exam_type != 'cme'">
+                            <div class="alert alert-info py-2" role="alert">
+                                <strong>Exam Registration Fees:</strong> USD $25 per module for CM&amp;E. Please select the modules being attempted below.
+                            </div>
+                            <h5 class="fw-bold text-primary mb-3">Part 1: Certificate in Project Monitoring &amp; Evaluation (CM&amp;E)</h5>
+                            <group>
+                                <field name="cme_ipm01"/>
+                                <field name="cme_pme02"/>
+                                <field name="cme_qlet03"/>
+                                <field name="cme_qtet04"/>
+                            </group>
+                            <div class="d-flex justify-content-between p-2 bg-light rounded mt-2" style="max-width: 400px;">
+                                <span class="fw-semibold">CM&amp;E Modules Attempted:</span>
+                                <span class="fw-bold fs-6"><field name="cme_module_count" readonly="1"/></span>
+                            </div>
+
+                            <!-- CM&E Declaration & Official Use -->
+                            <div class="border rounded p-3 mt-4 bg-light">
+                                <h6 class="fw-bold text-uppercase text-decoration-underline mb-2">DECLARATION</h6>
+                                <div class="row">
+                                    <div class="col-md-4"><field name="declaration_agreed"/></div>
+                                    <div class="col-md-4"><field name="candidate_signature" string="Signature:"/></div>
+                                    <div class="col-md-4"><field name="declaration_date" string="Date:"/></div>
+                                </div>
+                            </div>
+                            <div class="border border-dark rounded p-3 mt-3">
+                                <h6 class="fw-bold text-uppercase text-decoration-underline mb-2">FOR OFFICIAL USE ONLY:</h6>
+                                <group>
+                                    <group>
+                                        <field name="amount_received"/>
+                                        <field name="payment_method"/>
+                                        <field name="receipt_no"/>
+                                    </group>
+                                    <group>
+                                        <field name="session_booked"/>
+                                        <field name="official_name"/>
+                                        <field name="official_signature"/>
+                                    </group>
+                                </group>
+                            </div>
+                        </page>
+
+                        <!-- Fees & Rate Configuration Tab -->
+                        <page string="Fee Rates &amp; Notes" name="fees_settings">
+                            <group>
+                                <group string="Fee Rates per Module">
+                                    <field name="fee_per_cpm_module"/>
+                                    <field name="fee_per_dpm_module"/>
+                                    <field name="rtgs_fee_per_cpm_module"/>
+                                    <field name="rtgs_fee_per_dpm_module"/>
+                                    <field name="fee_per_cme_module"/>
+                                    <field name="fee_per_pgdpm_module"/>
+                                </group>
+                                <group string="Notes &amp; Internal Observations">
+                                    <field name="notes" placeholder="Internal remarks..."/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Exam Entry List View with Column Picker -->
+    <record id="view_pmz_exam_entry_tree" model="ir.ui.view">
+        <field name="name">pmz.exam.entry.list</field>
+        <field name="model">pmz.exam.entry</field>
+        <field name="arch" type="xml">
+            <list string="Examination Entries" decoration-info="state == 'draft'" decoration-warning="state == 'submitted'" decoration-success="state == 'approved'" decoration-danger="state == 'cancelled'">
+                <field name="name" optional="show"/>
+                <field name="exam_type" optional="show"/>
+                <field name="surname" optional="show"/>
+                <field name="forenames" optional="show"/>
+                <field name="student_membership_no" optional="show"/>
+                <field name="exam_session" optional="show"/>
+                <field name="college_name" optional="hide"/>
+                <field name="telephone_mobile" optional="hide"/>
+                <field name="email" optional="hide"/>
+                <field name="total_modules_attempted" string="Modules" optional="show"/>
+                <field name="total_exam_fee" widget="monetary" options="{'currency_field': 'currency_id'}" optional="show"/>
+                <field name="is_paid" widget="boolean_toggle" optional="show"/>
+                <field name="invoice_id" optional="show"/>
+                <field name="amount_received" widget="monetary" options="{'currency_field': 'currency_id'}" optional="hide"/>
+                <field name="receipt_no" optional="hide"/>
+                <field name="payment_method" optional="hide"/>
+                <field name="official_name" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'submitted'" decoration-primary="state == 'verified'" decoration-success="state == 'approved'" decoration-danger="state == 'cancelled'" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Exam Entry Search View -->
+    <record id="view_pmz_exam_entry_search" model="ir.ui.view">
+        <field name="name">pmz.exam.entry.search</field>
+        <field name="model">pmz.exam.entry</field>
+        <field name="arch" type="xml">
+            <search string="Search Exam Entries">
+                <field name="name" string="Reference"/>
+                <field name="surname"/>
+                <field name="forenames"/>
+                <field name="student_membership_no"/>
+                <field name="id_no"/>
+                <field name="email"/>
+                <field name="receipt_no"/>
+                <separator/>
+                <filter string="Draft" name="draft" domain="[('state', '=', 'draft')]"/>
+                <filter string="Submitted" name="submitted" domain="[('state', '=', 'submitted')]"/>
+                <filter string="Fee Verified" name="verified" domain="[('state', '=', 'verified')]"/>
+                <filter string="Approved" name="approved" domain="[('state', '=', 'approved')]"/>
+                <separator/>
+                <filter string="PGDPM" name="pgdpm" domain="[('exam_type', '=', 'pgdpm')]"/>
+                <filter string="CPM &amp; DPM" name="cpm_dpm" domain="[('exam_type', '=', 'cpm_dpm')]"/>
+                <filter string="CM&amp;E" name="cme" domain="[('exam_type', '=', 'cme')]"/>
+                <group>
+                    <filter string="Qualification" name="group_exam_type" context="{'group_by': 'exam_type'}"/>
+                    <filter string="Session" name="group_session" context="{'group_by': 'exam_session'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by': 'state'}"/>
+                    <filter string="Payment Method" name="group_payment" context="{'group_by': 'payment_method'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Actions for PGDPM Forms (Third Form) -->
+    <record id="action_pmz_exam_entry_pgdpm" model="ir.actions.act_window">
+        <field name="name">PGDPM Exam Form</field>
+        <field name="res_model">pmz.exam.entry</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('exam_type', '=', 'pgdpm')]</field>
+        <field name="context">{'default_exam_type': 'pgdpm', 'search_default_pgdpm': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Register a new PGDPM examination entry
+            </p>
+            <p>
+                Manage Post Graduate Diploma in Project Management Semester 1 and Semester 2 module registrations ($40/module).
+            </p>
+        </field>
+    </record>
+
+    <!-- Actions for CPM & DPM Forms -->
+    <record id="action_pmz_exam_entry_cpm_dpm" model="ir.actions.act_window">
+        <field name="name">CPM &amp; DPM Exam Form</field>
+        <field name="res_model">pmz.exam.entry</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('exam_type', '=', 'cpm_dpm')]</field>
+        <field name="context">{'default_exam_type': 'cpm_dpm', 'search_default_cpm_dpm': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Register a new CPM &amp; DPM examination entry
+            </p>
+            <p>
+                Manage Part 1 Certificate in Project Management and Part 2 Diploma in Project Management module registrations and fees.
+            </p>
+        </field>
+    </record>
+
+    <!-- Actions for CM&E Forms -->
+    <record id="action_pmz_exam_entry_cme" model="ir.actions.act_window">
+        <field name="name">CM&amp;E Exam Form</field>
+        <field name="res_model">pmz.exam.entry</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('exam_type', '=', 'cme')]</field>
+        <field name="context">{'default_exam_type': 'cme', 'search_default_cme': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Register a new CM&amp;E examination entry
+            </p>
+            <p>
+                Manage Certificate in Project Monitoring &amp; Evaluation examination module registrations and fees.
+            </p>
+        </field>
+    </record>
+
+    <!-- Actions for All Exam Entries -->
+    <record id="action_pmz_exam_entry_all" model="ir.actions.act_window">
+        <field name="name">All Exam Entries</field>
+        <field name="res_model">pmz.exam.entry</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{}</field>
+    </record>
+
+    <!-- Printable Official Examination Entry Form QWeb Report Action -->
+    <record id="action_report_pmz_exam_entry" model="ir.actions.report">
+        <field name="name">Examination Entry Form</field>
+        <field name="model">pmz.exam.entry</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">havano_pmz_odoo.report_exam_entry_document</field>
+        <field name="report_file">havano_pmz_odoo.report_exam_entry_document</field>
+        <field name="print_report_name">'Exam_Entry_%s' % (object.name or 'Form')</field>
+        <field name="binding_model_id" ref="model_pmz_exam_entry"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- QWeb PDF Report Template matching PMZ Examination Form Format -->
+    <template id="report_exam_entry_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="doc">
+                <t t-call="web.basic_layout">
+                    <div class="page" style="font-family: Arial, sans-serif; font-size: 11pt; color: #111;">
+                        <style>
+                            .box-square { width: 18px; height: 18px; border: 2px solid #000; display: inline-block; vertical-align: middle; text-align: center; line-height: 14px; font-weight: bold; }
+                            .line-fill { border-bottom: 1px dotted #333; display: inline-block; }
+                            .page-break { page-break-before: always; }
+                        </style>
+
+                        <!-- Header -->
+                        <div class="row align-items-center mb-3 pb-2 border-bottom border-dark border-2">
+                            <div class="col-3">
+                                <t t-if="doc.company_id.logo">
+                                    <img t-att-src="image_data_uri(doc.company_id.logo)" alt="Logo" style="max-height: 80px;"/>
+                                </t>
+                            </div>
+                            <div class="col-5" style="font-size: 10pt;">
+                                <h5 class="fw-bold mb-1 text-uppercase">Project Management Zimbabwe</h5>
+                                <div class="text-muted small">The Centre for Project Management excellence!</div>
+                                <div><t t-esc="doc.company_id.street"/></div>
+                                <div><t t-esc="doc.company_id.city"/></div>
+                            </div>
+                            <div class="col-4 text-end" style="font-size: 9pt;">
+                                <div><strong>Ref:</strong> <span t-field="doc.name"/></div>
+                                <div><strong>Email:</strong> <span t-esc="doc.company_id.email"/></div>
+                                <div><strong>Tel:</strong> <span t-esc="doc.company_id.phone"/></div>
+                            </div>
+                        </div>
+
+                        <!-- Important Notices & Stamp Box -->
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <h5 class="fw-bold text-decoration-underline mb-2">IMPORTANT</h5>
+                                <ol class="small mb-0" style="line-height: 1.5;">
+                                    <li>Please ensure that page 1 and 2 of this form are completed in every respect.</li>
+                                    <t t-if="doc.exam_type == 'pgdpm'">
+                                        <li>Please attach certified copies of CV, academic, professional and identification certificates.</li>
+                                        <li>Examination registration fees for PGDPM are USD$40 per module.</li>
+                                    </t>
+                                    <t t-elif="doc.exam_type == 'cpm_dpm'">
+                                        <li>Please attach certified copies of academic and identification certificates.</li>
+                                        <li>Examination registration fees are RTGS$250 (USD$25) per module for CPM and RTGS$300 (USD$30) for DPM, proof of payment must be attached to this form.</li>
+                                    </t>
+                                    <t t-else="">
+                                        <li>Please attach certified copies of academic and identification certificates.</li>
+                                        <li>Examination registration fees are USD$25 per module for CM&amp;E, proof of payment must be attached to this form.</li>
+                                    </t>
+                                    <li>Examination registration is invalid without valid PMZ membership.</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <!-- Form Title -->
+                        <h4 class="text-center fw-bold text-decoration-underline mb-4">
+                            <t t-if="doc.exam_type == 'pgdpm'">
+                                REGISTRATION AND EXAMINATION ENTRY FORM (PGDPM only)
+                            </t>
+                            <t t-elif="doc.exam_type == 'cpm_dpm'">
+                                EXAMINATION ENTRY FORM <span style="color: #c00;">(CPM&amp;DPM only)</span>
+                            </t>
+                            <t t-else="">
+                                EXAMINATION ENTRY FORM (CM&amp;E only)
+                            </t>
+                        </h4>
+
+                        <!-- Candidate Details Section (Page 1) -->
+                        <div style="line-height: 2.2;">
+                            <div>
+                                <strong>1. Surname:</strong> <span class="line-fill" style="width: 45%;"><t t-esc="doc.surname"/></span>
+                                <strong>Mr/Mrs/Miss:</strong> <span class="line-fill" style="width: 25%;"><t t-esc="doc.title"/></span>
+                            </div>
+                            <div>
+                                <strong>2. Forenames:</strong> <span class="line-fill" style="width: 45%;"><t t-esc="doc.forenames"/></span>
+                                <strong>Date of Birth:</strong> <span class="line-fill" style="width: 20%;"><t t-esc="doc.dob.strftime('%d/%m/%Y') if doc.dob else ''"/></span>
+                            </div>
+                            <div>
+                                <strong>3. I.D number:</strong> <span class="line-fill" style="width: 80%;"><t t-esc="doc.id_no"/></span>
+                            </div>
+                            <div>
+                                <strong>4. Address:</strong> <span class="line-fill" style="width: 83%;"><t t-esc="doc.address"/></span>
+                            </div>
+                            <div>
+                                <strong>Telephone: Home:</strong> <span class="line-fill" style="width: 20%;"><t t-esc="doc.telephone_home"/></span>
+                                <strong>Business:</strong> <span class="line-fill" style="width: 20%;"><t t-esc="doc.telephone_business"/></span>
+                                <strong>Mobile:</strong> <span class="line-fill" style="width: 20%;"><t t-esc="doc.telephone_mobile"/></span>
+                            </div>
+                            <div>
+                                <strong>Email:</strong> <span class="line-fill" style="width: 85%;"><t t-esc="doc.email"/></span>
+                            </div>
+                            <br/>
+                            <div>
+                                <strong>5. PMZ Student Membership No:</strong> <span class="line-fill" style="width: 55%;"><t t-esc="doc.student_membership_no"/></span>
+                            </div>
+                            <div>
+                                <strong>6. Examination Session:</strong> <span class="line-fill" style="width: 68%;"><t t-esc="doc.exam_session"/></span>
+                            </div>
+                            <div>
+                                <strong>7. Name of College where you received tuition:</strong> <span class="line-fill" style="width: 42%;"><t t-esc="doc.college_name"/></span>
+                            </div>
+                        </div>
+
+                        <!-- College Date Stamp Box at bottom right of Page 1 -->
+                        <div class="row mt-3">
+                            <div class="col-7"></div>
+                            <div class="col-5 text-end">
+                                <div class="border border-dark text-center p-2 d-inline-block" style="width: 220px; height: 110px;">
+                                    <div class="small fw-bold text-muted mt-4">College Date Stamp</div>
+                                    <t t-if="doc.college_stamp_date">
+                                        <div class="small text-muted"><t t-esc="doc.college_stamp_date.strftime('%d/%m/%Y')"/></div>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 pt-3 text-center fw-bold small text-muted border-top">
+                            NB: This PMZ examination entry form has 2 pages, all sections must be completed:
+                        </div>
+
+                        <!-- PAGE BREAK -->
+                        <div class="page-break"></div>
+
+                        <!-- PAGE 2: Modules Selection -->
+                        <h6 class="fw-bold mb-3 mt-3">8. Please insert an X in the boxes opposite to the subjects being attempted at this examination.</h6>
+
+                        <!-- Case 1: PGDPM Form -->
+                        <t t-if="doc.exam_type == 'pgdpm'">
+                            <h6 class="fw-bold mb-2">Semester 1 Post Graduate Diploma in Project Management (PGDPM)</h6>
+                            <table class="table table-sm table-bordered mb-2">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Module Title</th>
+                                        <th style="width: 140px;">Module code</th>
+                                        <th class="text-center" style="width: 60px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Personal Development Planning</td>
+                                        <td>PDP01</td>
+                                        <td class="text-center"><span class="box-square"><t t-if="doc.pgdpm_pdp01">X</t></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Principles and Practices in Project Management</td>
+                                        <td>PPPM02</td>
+                                        <td class="text-center"><span class="box-square"><t t-if="doc.pgdpm_pppm02">X</t></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Project Planning and Implementation</td>
+                                        <td>PIMPL03</td>
+                                        <td class="text-center"><span class="box-square"><t t-if="doc.pgdpm_pimpl03">X</t></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Project Monitoring and Evaluation</td>
+                                        <td>P M&amp;E04</td>
+                                        <td class="text-center"><span class="box-square"><t t-if="doc.pgdpm_pme04">X</t></span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="mb-4 d-flex align-items-center">
+                                <strong>9. Number of Semester 1 PGDPM modules being attempted:</strong>
+                                <span class="line-fill fw-bold ms-2 text-center" style="width: 80px;"><t t-esc="doc.pgdpm_sem1_count"/></span>
+                                <span class="ms-3 text-muted small">(<t t-esc="dict(doc._fields['pgdpm_sem1_sitting'].selection).get(doc.pgdpm_sem1_sitting, 'First sitting')"/>)</span>
+                            </div>
+
+                            <h6 class="fw-bold mb-2">10. Semester 2 Post Graduate Diploma in Project Management (PGDPM)</h6>
+                            <table class="table table-sm table-bordered mb-2">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Module Title</th>
+                                        <th style="width: 140px;">Module Code</th>
+                                        <th class="text-center" style="width: 60px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Project Management Information Systems</td>
+                                        <td>PMIS05</td>
+                                        <td class="text-center"><span class="box-square"><t t-if="doc.pgdpm_pmis05">X</t></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Project Leadership and Change Management</td>
+                                        <td>PLCM06</td>
+                                        <td class="text-center"><span class="box-square"><t t-if="doc.pgdpm_plcm06">X</t></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Project Risk Management</td>
+                                        <td>PRM07</td>
+                                        <td class="text-center"><span class="box-square"><t t-if="doc.pgdpm_prm07">X</t></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Project Valuation and Cost Management</td>
+                                        <td>PVCM08</td>
+                                        <td class="text-center"><span class="box-square"><t t-if="doc.pgdpm_pvcm08">X</t></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Project Time Management</td>
+                                        <td>PTM09</td>
+                                        <td class="text-center"><span class="box-square"><t t-if="doc.pgdpm_ptm09">X</t></span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="mb-4 d-flex align-items-center">
+                                <strong>11. Number of Semester 2 PGDPM modules being attempted:</strong>
+                                <span class="line-fill fw-bold ms-2 text-center" style="width: 80px;"><t t-esc="doc.pgdpm_sem2_count"/></span>
+                                <span class="ms-3 text-muted small">(<t t-esc="dict(doc._fields['pgdpm_sem2_sitting'].selection).get(doc.pgdpm_sem2_sitting, 'First sitting')"/>)</span>
+                            </div>
+                        </t>
+
+                        <!-- Case 2: CPM & DPM Form -->
+                        <t t-elif="doc.exam_type == 'cpm_dpm'">
+                            <h6 class="fw-bold mb-2">Part 1 Certificate in Project Management (CPM)</h6>
+                            <table class="table table-sm table-bordered mb-2">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Module Title</th>
+                                        <th style="width: 140px;">Module code</th>
+                                        <th class="text-center" style="width: 60px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Introduction to Project Management</td>
+                                        <td>IPM01</td>
+                                        <td class="text-center"><span class="box-square"><t t-if="doc.cpm_ipm01">X</t></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Project Planning</td>
+                                        <td>PP02</td>
+                                        <td class="text-center"><span class="box-square"><t t-if="doc.cpm_pp02">X</t></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Project Implementation</td>
+                                        <td>PIPML03</td>
+                                        <td class="text-center"><span class="box-square"><t t-if="doc.cpm_pipml03">X</t></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Project Monitoring and Evaluation</td>
+                                        <td>PM&amp;E04</td>
+                                        <td class="text-center"><span class="box-square"><t t-if="doc.cpm_pme04">X</t></span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="mb-4">
+                                <strong>9. Number of CPM modules being attempted:</strong> <span class="line-fill fw-bold ms-2 text-center" style="width: 100px;"><t t-esc="doc.cpm_module_count"/></span>
+                            </div>
+
+                            <h6 class="fw-bold mb-2">10. Part 2 Diploma in Project Management (DPM)</h6>
+                            <table class="table table-sm table-bordered mb-2">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Module Title</th>
+                                        <th style="width: 140px;">Module Code</th>
+                                        <th class="text-center" style="width: 60px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Project Management Information Systems</td>
+                                        <td>PIMS05</td>
+                                        <td class="text-center"><span class="box-square"><t t-if="doc.dpm_pims05">X</t></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Project Procurement &amp; Contracts Management</td>
+                                        <td>PPCM06</td>
+                                        <td class="text-center"><span class="box-square"><t t-if="doc.dpm_ppcm06">X</t></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Project Risk Management</td>
+                                        <td>PRM07</td>
+                                        <td class="text-center"><span class="box-square"><t t-if="doc.dpm_prm07">X</t></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Project Cost Management</td>
+                                        <td>PCM08</td>
+                                        <td class="text-center"><span class="box-square"><t t-if="doc.dpm_pcm08">X</t></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Project Time Management</td>
+                                        <td>PTM09</td>
+                                        <td class="text-center"><span class="box-square"><t t-if="doc.dpm_ptm09">X</t></span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="mb-4">
+                                <strong>11. Number of DPM modules being attempted:</strong> <span class="line-fill fw-bold ms-2 text-center" style="width: 100px;"><t t-esc="doc.dpm_module_count"/></span>
+                            </div>
+                        </t>
+
+                        <!-- Case 3: CM&E Form -->
+                        <t t-else="">
+                            <h6 class="fw-bold mb-2">Part 1 Certificate in Project Monitoring and Evaluation (CM&amp;E)</h6>
+                            <table class="table table-sm table-bordered mb-2">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Module Title</th>
+                                        <th style="width: 140px;">Module code</th>
+                                        <th class="text-center" style="width: 60px;"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Introduction to Project Management</td>
+                                        <td>IPM01</td>
+                                        <td class="text-center"><span class="box-square"><t t-if="doc.cme_ipm01">X</t></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Principles of Project Monitoring and Evaluation</td>
+                                        <td>PME02</td>
+                                        <td class="text-center"><span class="box-square"><t t-if="doc.cme_pme02">X</t></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Qualitative Evaluation techniques</td>
+                                        <td>QLET03</td>
+                                        <td class="text-center"><span class="box-square"><t t-if="doc.cme_qlet03">X</t></span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Quantitative Evaluation techniques</td>
+                                        <td>QTET04</td>
+                                        <td class="text-center"><span class="box-square"><t t-if="doc.cme_qtet04">X</t></span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="mb-4">
+                                <strong>11. Number of CM&amp;E modules being attempted:</strong> <span class="line-fill fw-bold ms-2 text-center" style="width: 100px;"><t t-esc="doc.cme_module_count"/></span>
+                            </div>
+                        </t>
+
+                        <!-- Declaration -->
+                        <h6 class="fw-bold text-decoration-underline mb-2">DECLARATION</h6>
+                        <p class="small mb-3" style="line-height: 1.6;">
+                            I hereby declare that I have adequately prepared for the examination and will not hold the institute 
+                            liable for any inabilities to sit for the examination caused by myself after registration, I submit that I 
+                            have read and understood PMZ rules and regulations in the prospectus.
+                        </p>
+                        <div class="row mb-4">
+                            <div class="col-8"><strong>Signature:</strong> <span class="line-fill" style="width: 60%;"><t t-esc="doc.candidate_signature or (doc.forenames + ' ' + doc.surname)"/></span></div>
+                            <div class="col-4"><strong>Date:</strong> <span class="line-fill" style="width: 65%;"><t t-esc="doc.declaration_date.strftime('%d/%m/%Y') if doc.declaration_date else (doc.create_date.strftime('%d/%m/%Y') if doc.create_date else '')"/></span></div>
+                        </div>
+
+                        <!-- Official Section -->
+                        <div class="border border-dark p-3 bg-light" style="line-height: 2;">
+                            <h6 class="fw-bold text-decoration-underline mb-2">FOR OFFICIAL USE ONLY:</h6>
+                            <div class="row">
+                                <div class="col-6"><strong>Amount received:</strong> <span class="line-fill fw-bold" style="width: 50%;"><t t-esc="doc.currency_id.symbol"/> <t t-esc="'%.2f' % doc.amount_received if doc.amount_received else '0.00'"/></span></div>
+                                <div class="col-6"><strong>Cash/Cheque/RTGS:</strong> <span class="line-fill text-uppercase" style="width: 45%;"><t t-esc="dict(doc._fields['payment_method'].selection).get(doc.payment_method, '')"/></span></div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-6"><strong>Receipt No:</strong> <span class="line-fill fw-bold" style="width: 65%;"><t t-esc="doc.receipt_no or ''"/></span></div>
+                                <div class="col-6"><strong>Exam Session Booked for:</strong> <span class="line-fill" style="width: 38%;"><t t-esc="doc.session_booked or doc.exam_session"/></span></div>
+                            </div>
+                            <div class="row mt-2">
+                                <div class="col-6"><strong>Official Name:</strong> <span class="line-fill" style="width: 65%;"><t t-esc="doc.official_name or ''"/></span></div>
+                                <div class="col-6"><strong>Signature:</strong> <span class="line-fill" style="width: 65%;"><t t-esc="doc.official_signature or doc.official_name or ''"/></span></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

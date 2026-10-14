@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_pmz_member_payment_form" model="ir.ui.view">
+        <field name="name">pmz.member.payment.form</field>
+        <field name="model">pmz.member.payment</field>
+        <field name="arch" type="xml">
+            <form string="Member Payment">
+                <header>
+                    <button name="action_post" string="Confirm Payment" type="object" class="oe_highlight" invisible="state != 'draft'"/>
+                    <button name="action_cancel" string="Cancel Payment" type="object" invisible="state != 'posted'" class="btn-danger"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,posted,cancelled"/>
+                </header>
+                <sheet>
+                    <group string="Details">
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company" options="{'no_create': True, 'no_open': True}" invisible="1"/>
+                            <field name="name" readonly="1"/>
+                            <field name="member_id" readonly="state != 'draft'" options="{'no_create': True}"/>
+                            <field name="grading" readonly="1"/>
+                        </group>
+                        <group>
+                            <field name="date" readonly="state != 'draft'"/>
+                            <field name="journal_id" readonly="state != 'draft'" options="{'no_create': True}"/>
+                            <field name="total_balance" readonly="1" style="font-weight: bold; font-size: 1.2em;"/>
+                            <field name="allocated_amount" readonly="state != 'draft'" placeholder="Enter amount to auto-allocate" style="font-weight: bold; font-size: 1.2em;"/>
+                            <field name="currency_id" readonly="state != 'draft'" groups="base.group_multi_currency" options="{'no_create': True}"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Outstanding Invoices" name="outstanding_invoices">
+                            <field name="line_ids">
+                                <list string="Invoices" editable="bottom" create="false" delete="false">
+                                    <field name="name" readonly="1" optional="show"/>
+                                    <field name="invoice_date" readonly="1" optional="show"/>
+                                    <field name="amount_residual" readonly="1" widget="monetary" options="{'currency_field': 'currency_id'}" optional="show"/>
+                                    <field name="amount_allocated" widget="monetary" options="{'currency_field': 'currency_id'}" optional="show"/>
+                                    <field name="currency_id" column_invisible="True"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_pmz_member_payment_list" model="ir.ui.view">
+        <field name="name">pmz.member.payment.list</field>
+        <field name="model">pmz.member.payment</field>
+        <field name="arch" type="xml">
+            <list string="Member Payments">
+                <field name="name" optional="show"/>
+                <field name="member_id" optional="show"/>
+                <field name="grading" optional="show"/>
+                <field name="journal_id" optional="show"/>
+                <field name="date" optional="show"/>
+                <field name="allocated_amount" sum="Total Payments" optional="show"/>
+                <field name="total_balance" optional="hide"/>
+                <field name="exchange_rate" optional="hide"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+                <field name="currency_id" column_invisible="True"/>
+                <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-success="state == 'posted'" decoration-danger="state == 'cancelled'" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_pmz_member_payment_search" model="ir.ui.view">
+        <field name="name">pmz.member.payment.search</field>
+        <field name="model">pmz.member.payment</field>
+        <field name="arch" type="xml">
+            <search string="Search Payments">
+                <field name="name"/>
+                <field name="member_id"/>
+                <field name="journal_id"/>
+                <filter string="Draft" name="draft" domain="[('state','=','draft')]"/>
+                <filter string="Posted" name="posted" domain="[('state','=','posted')]"/>
+                <group>
+                    <filter string="Member" name="group_member" context="{'group_by':'member_id'}"/>
+                    <filter string="Status" name="group_state" context="{'group_by':'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_pmz_member_payment" model="ir.actions.act_window">
+        <field name="name">Payments</field>
+        <field name="res_model">pmz.member.payment</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

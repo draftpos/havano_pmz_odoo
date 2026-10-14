@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Top-level PMZ Management App -->
+    <menuitem id="menu_pmz_root" 
+              name="PMZ Management" 
+              sequence="0" 
+              action="action_pmz_dashboard"
+              web_icon="havano_pmz_odoo,static/description/icon.png"/>
+
+    <!-- Dashboard Menu -->
+    <menuitem id="menu_pmz_dashboard" 
+              name="Dashboard" 
+              parent="menu_pmz_root" 
+              action="action_pmz_dashboard" 
+              sequence="10"/>
+
+    <!-- Management Submenu -->
+    <menuitem id="menu_pmz_management" 
+              name="Management" 
+              parent="menu_pmz_root" 
+              sequence="20"/>
+
+    <menuitem id="menu_pmz_applications" 
+              name="Applications" 
+              parent="menu_pmz_management" 
+              action="action_havano_professional_admission" 
+              sequence="10"/>
+
+    <menuitem id="menu_pmz_members" 
+              name="Members" 
+              parent="menu_pmz_management" 
+              action="action_pmz_member" 
+              sequence="20"/>
+
+    <!-- Exam Forms Menu Tab -->
+    <menuitem id="menu_pmz_exam_forms_root" 
+              name="Exam Forms" 
+              parent="menu_pmz_root" 
+              sequence="25"/>
+
+    <menuitem id="menu_pmz_exam_forms_cpm_dpm" 
+              name="CPM &amp; DPM Exam Form" 
+              parent="menu_pmz_exam_forms_root" 
+              action="action_pmz_exam_entry_cpm_dpm" 
+              sequence="10"/>
+
+    <menuitem id="menu_pmz_exam_forms_cme" 
+              name="CM&amp;E Exam Form" 
+              parent="menu_pmz_exam_forms_root" 
+              action="action_pmz_exam_entry_cme" 
+              sequence="20"/>
+
+    <menuitem id="menu_pmz_exam_forms_pgdpm" 
+              name="PGDPM Exam Form" 
+              parent="menu_pmz_exam_forms_root" 
+              action="action_pmz_exam_entry_pgdpm" 
+              sequence="30"/>
+
+    <menuitem id="menu_pmz_exam_forms_all" 
+              name="All Exam Entries" 
+              parent="menu_pmz_exam_forms_root" 
+              action="action_pmz_exam_entry_all" 
+              sequence="40"/>
+
+    <!-- Billing Menu -->
+    <menuitem id="menu_pmz_billing_root" 
+              name="Billing" 
+              parent="menu_pmz_root" 
+              sequence="30"/>
+
+    <!-- 1. Billing (Bulk Wizard) -->
+    <menuitem id="menu_pmz_billing_wizard" 
+              name="Billing" 
+              parent="menu_pmz_billing_root" 
+              action="action_pmz_bulk_billing_wizard" 
+              sequence="10"/>
+
+    <!-- 2. Invoices -->
+    <menuitem id="menu_pmz_invoices" 
+              name="Invoices" 
+              parent="menu_pmz_billing_root" 
+              action="account.action_move_out_invoice_type" 
+              sequence="12"/>
+
+    <!-- 3. Fees Assignments -->
+    <menuitem id="menu_pmz_fees_assignment" 
+              name="Fees Assignments" 
+              parent="menu_pmz_billing_root" 
+              action="action_pmz_fees_structure" 
+              sequence="15"/>
+
+    <!-- 4. Fees Structures -->
+    <menuitem id="menu_pmz_fees_structures" 
+              name="Fees Structures" 
+              parent="menu_pmz_billing_root" 
+              action="action_pmz_fees_structure_sub" 
+              sequence="20"/>
+
+    <!-- 5. Payments -->
+    <menuitem id="menu_pmz_payments" 
+              name="Payments" 
+              parent="menu_pmz_billing_root" 
+              action="action_pmz_member_payment" 
+              sequence="25"/>
+
+    <!-- 6. Debtors Follow Up -->
+    <menuitem id="menu_pmz_debtors_follow_up" 
+              name="Debtors Follow Up" 
+              parent="menu_pmz_billing_root" 
+              action="action_pmz_debtors_follow_up" 
+              sequence="30"/>
+
+    <!-- 7. Items -->
+    <record id="action_pmz_billing_items" model="ir.actions.act_window">
+        <field name="name">Items</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">list,kanban,form</field>
+    </record>
+
+    <menuitem id="menu_pmz_billing_items" 
+              name="Items" 
+              parent="menu_pmz_billing_root" 
+              action="action_pmz_billing_items" 
+              sequence="35"/>
+
+    <!-- Settings Menu -->
+    <menuitem id="menu_pmz_settings"
+              name="Settings"
+              parent="menu_pmz_root"
+              action="action_pmz_settings"
+              sequence="100"/>
+</odoo>

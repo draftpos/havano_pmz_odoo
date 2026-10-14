@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_havano_professional_admission,havano.professional.admission,model_havano_professional_admission,base.group_user,1,1,1,1
+access_pmz_member,pmz.member,model_pmz_member,base.group_user,1,1,1,1
+access_pmz_dashboard,pmz.dashboard,model_pmz_dashboard,base.group_user,1,1,1,1
+access_pmz_fees_structure_sub,pmz.fees.structure.sub,model_pmz_fees_structure_sub,base.group_user,1,1,1,1
+access_pmz_fees_structure,pmz.fees.structure,model_pmz_fees_structure,base.group_user,1,1,1,1
+access_pmz_fees_structure_line,pmz.fees.structure.line,model_pmz_fees_structure_line,base.group_user,1,1,1,1
+access_pmz_bulk_billing_wizard,pmz.bulk.billing.wizard,model_pmz_bulk_billing_wizard,base.group_user,1,1,1,1
+access_pmz_member_payment,pmz.member.payment,model_pmz_member_payment,base.group_user,1,1,1,1
+access_pmz_member_payment_line,pmz.member.payment.line,model_pmz_member_payment_line,base.group_user,1,1,1,1
+access_pmz_exam_entry,pmz.exam.entry,model_pmz_exam_entry,base.group_user,1,1,1,1

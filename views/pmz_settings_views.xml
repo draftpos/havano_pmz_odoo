@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_pmz" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.pmz</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="90"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="PMZ Settings" string="PMZ Settings" name="havano_pmz_odoo">
+                    <block title="PMZ Fees Assignments &amp; Pricing Configuration" id="pmz_fees_block">
+                        <div class="text-muted mb-3">
+                            Configure default Fees Assignments for membership online applications and examination forms. Any changes to items, rates, or multi-line fees structure assignments here will automatically drive the billing system with zero hardcoded values.
+                        </div>
+
+                        <setting id="pmz_defaults_generator" string="Auto-Seed Default Fees" help="Generate default items, fees structures, and assignments if not yet created.">
+                            <button name="action_pmz_generate_default_fees" type="object" string="Generate / Reset Default Fees Structures" class="btn-secondary"/>
+                        </setting>
+
+                        <setting id="pmz_standard_fee_setting" title="Standard Membership Fee" string="Standard Membership Fee Assignment" help="Used for Associate, Student, Retiree, and Fellow member registrations ($25 default).">
+                            <field name="pmz_fee_standard_id" options="{'no_create_edit': False}"/>
+                        </setting>
+
+                        <setting id="pmz_professional_fee_setting" title="Full &amp; Professional Membership Fee" string="Full/Professional Fee Assignment" help="Used for Full Member and Professional Member registrations ($100 default).">
+                            <field name="pmz_fee_professional_id" options="{'no_create_edit': False}"/>
+                        </setting>
+
+                        <setting id="pmz_cpm_fee_setting" title="CPM Exam Fee per Module" string="CPM Exam Fee (per module)" help="Fees Assignment applied to CPM modules attempted ($25 default).">
+                            <field name="pmz_fee_cpm_id" options="{'no_create_edit': False}"/>
+                        </setting>
+
+                        <setting id="pmz_dpm_fee_setting" title="DPM Exam Fee per Module" string="DPM Exam Fee (per module)" help="Fees Assignment applied to DPM modules attempted ($30 default).">
+                            <field name="pmz_fee_dpm_id" options="{'no_create_edit': False}"/>
+                        </setting>
+
+                        <setting id="pmz_cme_fee_setting" title="CM&amp;E Exam Fee per Module" string="CM&amp;E Exam Fee (per module)" help="Fees Assignment applied to Certificate in Monitoring &amp; Evaluation ($25 default).">
+                            <field name="pmz_fee_cme_id" options="{'no_create_edit': False}"/>
+                        </setting>
+
+                        <setting id="pmz_pgdpm_fee_setting" title="PGDPM Exam Fee per Module" string="PGDPM Exam Fee (per module)" help="Fees Assignment applied to Post Graduate Diploma modules ($40 default).">
+                            <field name="pmz_fee_pgdpm_id" options="{'no_create_edit': False}"/>
+                        </setting>
+
+                        <setting id="pmz_journal_setting" title="Default Payment Journal" string="Default Payment Journal" help="Default Bank or Cash journal used for processing online or offline member payments.">
+                            <field name="pmz_payment_journal_id" options="{'no_create': True}"/>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_pmz_settings" model="ir.actions.act_window">
+        <field name="name">PMZ Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+        <field name="context">{'module': 'havano_pmz_odoo'}</field>
+    </record>
+</odoo>

@@ -1,0 +1,458 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_pmz_dashboard_form" model="ir.ui.view">
+        <field name="name">pmz.dashboard.form</field>
+        <field name="model">pmz.dashboard</field>
+        <field name="arch" type="xml">
+            <form string="Dashboard" create="false" delete="false">
+                <style>
+                    .o_control_panel {
+                        display: none !important;
+                    }
+                    .pmz-dashboard-wrapper {
+                        background-color: #f8fafc;
+                        min-height: 100vh;
+                        margin: -16px;
+                        padding: 24px;
+                    }
+                    .pmz-stat-card {
+                        background: #ffffff;
+                        border-radius: 14px;
+                        padding: 20px 22px;
+                        border: 1px solid #e2e8f0;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.03), 0 1px 2px rgba(0,0,0,0.02);
+                        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+                        cursor: pointer;
+                        height: 100%;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: space-between;
+                        text-decoration: none;
+                    }
+                    .pmz-stat-card:hover {
+                        transform: translateY(-3px);
+                        box-shadow: 0 12px 20px -4px rgba(15, 23, 42, 0.08), 0 4px 6px -2px rgba(15, 23, 42, 0.04);
+                        border-color: #cbd5e1;
+                    }
+                    .pmz-stat-icon {
+                        width: 48px;
+                        height: 48px;
+                        border-radius: 12px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 20px;
+                        flex-shrink: 0;
+                    }
+                    .pmz-icon-emerald { background: #dcfce7; color: #16a34a; }
+                    .pmz-icon-blue { background: #e0f2fe; color: #0284c7; }
+                    .pmz-icon-rose { background: #ffe4e6; color: #e11d48; }
+                    .pmz-icon-violet { background: #ede9fe; color: #7c3aed; }
+                    .pmz-icon-sky { background: #e0f2fe; color: #0369a1; }
+                    .pmz-icon-green { background: #dcfce7; color: #15803d; }
+                    .pmz-icon-amber { background: #fef3c7; color: #d97706; }
+                    .pmz-icon-purple { background: #f3e8ff; color: #9333ea; }
+                    .pmz-content-card {
+                        background: #ffffff;
+                        border-radius: 14px;
+                        padding: 22px;
+                        border: 1px solid #e2e8f0;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+                        height: 100%;
+                    }
+                    .pmz-section-title {
+                        font-size: 13px;
+                        font-weight: 700;
+                        text-transform: uppercase;
+                        letter-spacing: 0.75px;
+                        color: #64748b;
+                        margin-bottom: 14px;
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                    }
+                </style>
+
+                <sheet>
+                    <div class="pmz-dashboard-wrapper">
+                        <!-- Header Banner -->
+                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 pb-3 border-bottom">
+                            <div>
+                                <h2 class="m-0 fw-bold" style="color: #0f172a; font-size: 26px; letter-spacing: -0.5px;">
+                                    PMZ Management Executive Dashboard
+                                </h2>
+                                <p class="text-muted m-0 mt-1" style="font-size: 14px;">
+                                    Real-time financial collections, membership growth, admissions pipeline, and billing operations.
+                                </p>
+                            </div>
+                            <div class="d-flex align-items-center gap-2 mt-3 mt-md-0">
+                                <button name="action_view_payments" type="object" class="btn btn-outline-success btn-sm d-flex align-items-center gap-2">
+                                    <i class="fa fa-money" title="Payments"></i> View Payments
+                                </button>
+                                <button name="action_view_members" type="object" class="btn btn-primary btn-sm d-flex align-items-center gap-2">
+                                    <i class="fa fa-users" title="Members"></i> Members Directory
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- SECTION 1: Financial & Billing Performance KPIs -->
+                        <div class="pmz-section-title">
+                            <i class="fa fa-credit-card text-success" title="Financial Performance"></i> Financial &amp; Collections Overview
+                        </div>
+                        <div class="row g-3 mb-4">
+                            <!-- Card 1: Total Payments Collected -->
+                            <div class="col-12 col-sm-6 col-xl-3">
+                                <button name="action_view_payments" type="object" class="btn p-0 m-0 w-100 text-start text-decoration-none border-0">
+                                    <div class="pmz-stat-card">
+                                        <div class="d-flex align-items-center justify-content-between mb-3">
+                                            <div class="pmz-stat-icon pmz-icon-emerald">
+                                                <i class="fa fa-money" title="Total Payments"></i>
+                                            </div>
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1" style="font-size: 11px;">
+                                                <field name="total_payments_count"/> Receipts
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <div class="text-muted text-uppercase fw-semibold" style="font-size: 11px; letter-spacing: 0.5px;">Total Payments Collected</div>
+                                            <div class="fw-bold mt-1" style="font-size: 24px; color: #0f172a;">
+                                                <field name="total_payments_amount"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </button>
+                            </div>
+
+                            <!-- Card 2: Total Invoiced -->
+                            <div class="col-12 col-sm-6 col-xl-3">
+                                <button name="action_view_invoices" type="object" class="btn p-0 m-0 w-100 text-start text-decoration-none border-0">
+                                    <div class="pmz-stat-card">
+                                        <div class="d-flex align-items-center justify-content-between mb-3">
+                                            <div class="pmz-stat-icon pmz-icon-blue">
+                                                <i class="fa fa-file-text-o" title="Total Invoiced"></i>
+                                            </div>
+                                            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1" style="font-size: 11px;">
+                                                <field name="total_invoiced_count"/> Invoices
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <div class="text-muted text-uppercase fw-semibold" style="font-size: 11px; letter-spacing: 0.5px;">Total Invoiced</div>
+                                            <div class="fw-bold mt-1" style="font-size: 24px; color: #0f172a;">
+                                                <field name="total_invoiced_amount"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </button>
+                            </div>
+
+                            <!-- Card 3: Outstanding Receivables -->
+                            <div class="col-12 col-sm-6 col-xl-3">
+                                <button name="action_view_debtors" type="object" class="btn p-0 m-0 w-100 text-start text-decoration-none border-0">
+                                    <div class="pmz-stat-card">
+                                        <div class="d-flex align-items-center justify-content-between mb-3">
+                                            <div class="pmz-stat-icon pmz-icon-rose">
+                                                <i class="fa fa-exclamation-triangle" title="Outstanding Debtors"></i>
+                                            </div>
+                                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-2 py-1" style="font-size: 11px;">
+                                                <field name="total_debtors_count"/> Debtors
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <div class="text-muted text-uppercase fw-semibold" style="font-size: 11px; letter-spacing: 0.5px;">Outstanding Receivables</div>
+                                            <div class="fw-bold mt-1" style="font-size: 24px; color: #e11d48;">
+                                                <field name="total_outstanding_amount"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </button>
+                            </div>
+
+                            <!-- Card 4: Month's Collections -->
+                            <div class="col-12 col-sm-6 col-xl-3">
+                                <button name="action_view_payments" type="object" class="btn p-0 m-0 w-100 text-start text-decoration-none border-0">
+                                    <div class="pmz-stat-card">
+                                        <div class="d-flex align-items-center justify-content-between mb-3">
+                                            <div class="pmz-stat-icon pmz-icon-violet">
+                                                <i class="fa fa-line-chart" title="Monthly Collections"></i>
+                                            </div>
+                                            <span class="badge bg-purple-subtle text-purple border border-purple-subtle px-2 py-1" style="font-size: 11px; color:#7c3aed;">
+                                                This Month
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <div class="text-muted text-uppercase fw-semibold" style="font-size: 11px; letter-spacing: 0.5px;">Current Month Collections</div>
+                                            <div class="fw-bold mt-1" style="font-size: 24px; color: #7c3aed;">
+                                                <field name="monthly_payments_amount"/>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- SECTION 2: Membership & Admissions KPIs -->
+                        <div class="pmz-section-title">
+                            <i class="fa fa-users text-primary" title="Membership Overview"></i> Membership &amp; Admissions Status
+                        </div>
+                        <div class="row g-3 mb-4">
+                            <!-- Card 5: Total Members -->
+                            <div class="col-12 col-sm-6 col-xl-3">
+                                <button name="action_view_members" type="object" class="btn p-0 m-0 w-100 text-start text-decoration-none border-0">
+                                    <div class="pmz-stat-card">
+                                        <div class="d-flex align-items-center justify-content-between mb-3">
+                                            <div class="pmz-stat-icon pmz-icon-sky">
+                                                <i class="fa fa-users" title="Total Members"></i>
+                                            </div>
+                                            <i class="fa fa-chevron-right text-muted opacity-50" title="Navigate"></i>
+                                        </div>
+                                        <div>
+                                            <div class="text-muted text-uppercase fw-semibold" style="font-size: 11px; letter-spacing: 0.5px;">Total Members</div>
+                                            <div class="fw-bold mt-1" style="font-size: 24px; color: #0f172a;"><field name="total_members"/></div>
+                                        </div>
+                                    </div>
+                                </button>
+                            </div>
+
+                            <!-- Card 6: Active Members -->
+                            <div class="col-12 col-sm-6 col-xl-3">
+                                <button name="action_view_active_members" type="object" class="btn p-0 m-0 w-100 text-start text-decoration-none border-0">
+                                    <div class="pmz-stat-card">
+                                        <div class="d-flex align-items-center justify-content-between mb-3">
+                                            <div class="pmz-stat-icon pmz-icon-green">
+                                                <i class="fa fa-check-circle" title="Active Members"></i>
+                                            </div>
+                                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1" style="font-size: 11px;">Active</span>
+                                        </div>
+                                        <div>
+                                            <div class="text-muted text-uppercase fw-semibold" style="font-size: 11px; letter-spacing: 0.5px;">Active Members</div>
+                                            <div class="fw-bold mt-1" style="font-size: 24px; color: #16a34a;"><field name="active_members"/></div>
+                                        </div>
+                                    </div>
+                                </button>
+                            </div>
+
+                            <!-- Card 7: Pending Admissions -->
+                            <div class="col-12 col-sm-6 col-xl-3">
+                                <button name="action_view_pending_applications" type="object" class="btn p-0 m-0 w-100 text-start text-decoration-none border-0">
+                                    <div class="pmz-stat-card">
+                                        <div class="d-flex align-items-center justify-content-between mb-3">
+                                            <div class="pmz-stat-icon pmz-icon-amber">
+                                                <i class="fa fa-clock-o" title="Pending Applications"></i>
+                                            </div>
+                                            <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1" style="font-size: 11px;">Awaiting Review</span>
+                                        </div>
+                                        <div>
+                                            <div class="text-muted text-uppercase fw-semibold" style="font-size: 11px; letter-spacing: 0.5px;">Pending Admissions</div>
+                                            <div class="fw-bold mt-1" style="font-size: 24px; color: #d97706;"><field name="pending_applications"/></div>
+                                        </div>
+                                    </div>
+                                </button>
+                            </div>
+
+                            <!-- Card 8: Billing Items & Catalog -->
+                            <div class="col-12 col-sm-6 col-xl-3">
+                                <button name="action_view_billing_items" type="object" class="btn p-0 m-0 w-100 text-start text-decoration-none border-0">
+                                    <div class="pmz-stat-card">
+                                        <div class="d-flex align-items-center justify-content-between mb-3">
+                                            <div class="pmz-stat-icon pmz-icon-purple">
+                                                <i class="fa fa-cubes" title="Billing Items"></i>
+                                            </div>
+                                            <span class="badge bg-light text-dark border px-2 py-1" style="font-size: 11px;">Catalog</span>
+                                        </div>
+                                        <div>
+                                            <div class="text-muted text-uppercase fw-semibold" style="font-size: 11px; letter-spacing: 0.5px;">Fee Items Catalog</div>
+                                            <div class="fw-bold mt-1" style="font-size: 24px; color: #9333ea;"><field name="total_billing_items"/></div>
+                                        </div>
+                                    </div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- SECTION 3: CHARTS & VISUAL ANALYTICS -->
+                        <div class="row g-4 mb-4">
+                            <!-- Chart 1: Collections vs Invoiced Trend -->
+                            <div class="col-12 col-lg-7">
+                                <div class="pmz-content-card">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <h5 class="fw-bold m-0" style="color: #0f172a; font-size: 16px;">
+                                                <i class="fa fa-bar-chart text-primary me-2" title="Chart"></i>6-Month Billing &amp; Collections Trend
+                                            </h5>
+                                            <p class="text-muted m-0 small mt-1">Comparison of monthly invoiced volume vs cash payments received</p>
+                                        </div>
+                                        <div class="d-flex gap-3 align-items-center" style="font-size: 12px;">
+                                            <span class="d-flex align-items-center gap-1">
+                                                <span style="display:inline-block; width:10px; height:10px; border-radius:3px; background:#6366f1;"></span> Invoiced
+                                            </span>
+                                            <span class="d-flex align-items-center gap-1">
+                                                <span style="display:inline-block; width:10px; height:10px; border-radius:3px; background:#10b981;"></span> Collected
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <field name="revenue_chart_html" widget="html" nolabel="1"/>
+                                </div>
+                            </div>
+
+                            <!-- Chart 2: Member Grading Breakdown -->
+                            <div class="col-12 col-lg-5">
+                                <div class="pmz-content-card">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <h5 class="fw-bold m-0" style="color: #0f172a; font-size: 16px;">
+                                                <i class="fa fa-pie-chart text-success me-2" title="Donut Chart"></i>Members by Grading
+                                            </h5>
+                                            <p class="text-muted m-0 small mt-1">Professional membership tier distribution</p>
+                                        </div>
+                                    </div>
+                                    <field name="grading_chart_html" widget="html" nolabel="1"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SECTION 4: Applications Pipeline & Recent Activity Tables -->
+                        <div class="row g-4 mb-4">
+                            <!-- Admissions Status Funnel -->
+                            <div class="col-12 col-lg-6">
+                                <div class="pmz-content-card">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <h5 class="fw-bold m-0" style="color: #0f172a; font-size: 16px;">
+                                                <i class="fa fa-wpforms text-warning me-2" title="Applications"></i>Admissions Pipeline Funnel
+                                            </h5>
+                                            <p class="text-muted m-0 small mt-1">Current status breakdown across all admissions</p>
+                                        </div>
+                                        <button name="action_view_applications" type="object" string="View All" class="btn btn-outline-primary btn-sm"/>
+                                    </div>
+                                    <field name="admissions_pipeline_html" widget="html" nolabel="1"/>
+                                    <div class="mt-4 pt-3 border-top">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h6 class="fw-bold m-0" style="font-size: 13px; color: #334155;">Applications Awaiting Review</h6>
+                                            <button name="action_view_pending_applications" type="object" string="Review Pending" class="btn btn-link btn-sm p-0 text-decoration-none"/>
+                                        </div>
+                                        <field name="recent_applications_html" widget="html" nolabel="1"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Recent Payments Table -->
+                            <div class="col-12 col-lg-6">
+                                <div class="pmz-content-card">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <h5 class="fw-bold m-0" style="color: #0f172a; font-size: 16px;">
+                                                <i class="fa fa-credit-card text-success me-2" title="Payments"></i>Recent Member Payments
+                                            </h5>
+                                            <p class="text-muted m-0 small mt-1">Latest confirmed receipt entries</p>
+                                        </div>
+                                        <button name="action_view_payments" type="object" string="All Payments" class="btn btn-outline-success btn-sm"/>
+                                    </div>
+                                    <field name="recent_payments_html" widget="html" nolabel="1"/>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- SECTION 5: Quick Management Hub & Operations Shortcuts -->
+                        <div class="pmz-section-title">
+                            <i class="fa fa-th-large text-secondary" title="Operations Hub"></i> PMZ Operations &amp; Billing Shortcuts
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-12 col-sm-6 col-lg-3">
+                                <div class="card border-0 shadow-sm rounded-4 p-3 h-100 bg-white">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="pmz-stat-icon pmz-icon-blue">
+                                            <i class="fa fa-play-circle" title="Bulk Billing"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark" style="font-size: 14px;">Bulk Billing Runs</div>
+                                            <div class="text-muted small">Execute periodic batch runs</div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 pt-2 border-top">
+                                        <button name="action_view_billing_runs" type="object" string="Open Billing Wizard" class="btn btn-sm btn-outline-primary w-100"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-sm-6 col-lg-3">
+                                <div class="card border-0 shadow-sm rounded-4 p-3 h-100 bg-white">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="pmz-stat-icon pmz-icon-emerald">
+                                            <i class="fa fa-list-alt" title="Fees Assignment"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark" style="font-size: 14px;">Fees Assignments</div>
+                                            <div class="text-muted small">Configure grade fee structures</div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 pt-2 border-top">
+                                        <button name="action_view_fees_assignments" type="object" string="Manage Assignments" class="btn btn-sm btn-outline-success w-100"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-sm-6 col-lg-3">
+                                <div class="card border-0 shadow-sm rounded-4 p-3 h-100 bg-white">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="pmz-stat-icon pmz-icon-rose">
+                                            <i class="fa fa-bell" title="Debtors Follow-up"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark" style="font-size: 14px;">Debtors Follow-Up</div>
+                                            <div class="text-muted small">Track balances and log notes</div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 pt-2 border-top">
+                                        <button name="action_view_debtors" type="object" string="Open Follow-Up" class="btn btn-sm btn-outline-danger w-100"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-sm-6 col-lg-3">
+                                <div class="card border-0 shadow-sm rounded-4 p-3 h-100 bg-white">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="pmz-stat-icon pmz-icon-purple">
+                                            <i class="fa fa-tags" title="Items Catalog"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark" style="font-size: 14px;">Fees &amp; Items Catalog</div>
+                                            <div class="text-muted small">Maintain membership products</div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 pt-2 border-top">
+                                        <button name="action_view_billing_items" type="object" string="Open Catalog" class="btn btn-sm btn-outline-secondary w-100"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-sm-6 col-lg-3">
+                                <div class="card border-0 shadow-sm rounded-4 p-3 h-100 bg-white">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="pmz-stat-icon pmz-icon-amber">
+                                            <i class="fa fa-graduation-cap" title="Exam Forms"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-dark" style="font-size: 14px;">Exam Entry Forms</div>
+                                            <div class="text-muted small">CPM, DPM &amp; CM&amp;E entries</div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3 pt-2 border-top">
+                                        <button name="action_view_exam_forms" type="object" string="Manage Exam Forms" class="btn btn-sm btn-outline-warning w-100"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_pmz_dashboard" model="ir.actions.act_window">
+        <field name="name">Dashboard</field>
+        <field name="res_model">pmz.dashboard</field>
+        <field name="view_mode">form</field>
+        <field name="target">current</field>
+        <field name="view_id" ref="view_pmz_dashboard_form"/>
+        <field name="context">{'create': True, 'no_breadcrumbs': True}</field>
+    </record>
+</odoo>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_pmz_bulk_billing_wizard_form" model="ir.ui.view">
+        <field name="name">pmz.bulk.billing.wizard.form</field>
+        <field name="model">pmz.bulk.billing.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Billing">
+                <header>
+                    <button name="action_generate_invoices" string="Generate Invoices" type="object" class="btn-primary" data-hotkey="q" invisible="is_generated or is_processing"/>
+                    <button string="⏳ Processing..." class="btn-warning" disabled="1" invisible="not is_processing"/>
+                    <button string="✓ Done" class="btn-success" disabled="1" invisible="not is_generated or is_processing"/>
+                    <button name="action_cancel_billing" string="Cancel Billing" type="object" class="btn-danger" invisible="is_processing or not is_generated"
+                        confirm="This will cancel ALL invoices for this billing run. Are you sure?"/>
+                    <button string="Close" class="btn-secondary" special="cancel" data-hotkey="z"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" type="object" name="action_view_invoices" icon="fa-pencil-square-o" invisible="invoice_count == 0">
+                            <field string="Invoices" name="invoice_count" widget="statinfo"/>
+                        </button>
+                    </div>
+                    <field name="is_processing" invisible="1"/>
+                    <field name="is_generated" invisible="1"/>
+                    <group>
+                        <field name="selection_type" string="Billing Type" widget="radio" options="{'horizontal': true}"/>
+                    </group>
+                    <group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company" options="{'no_create': True, 'no_open': True}" invisible="1"/>
+                            <field name="grading" invisible="selection_type != 'grading'" required="selection_type == 'grading'"/>
+                            <field name="date"/>
+                            <field name="billing_year"/>
+                        </group>
+                        <group>
+                            <field name="billing_mode" widget="radio"/>
+                            <field name="fees_structure_id" invisible="billing_mode != 'fees_structure'" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="member_count" readonly="1"/>
+                        </group>
+                    </group>
+
+                    <separator string="Billing Details"/>
+                    <field name="fees_structure_line_ids" nolabel="1" invisible="billing_mode != 'fees_structure'">
+                        <list string="Fees Items" editable="bottom" create="false">
+                            <field name="sub_fees_category_id" string="Fees Structure" readonly="1" optional="show"/>
+                            <field name="product_id" string="Item" readonly="1" optional="show"/>
+                            <field name="qty" string="Qty" optional="show"/>
+                            <field name="rate" string="Unit Price" optional="show"/>
+                            <field name="total" string="Total" sum="Total Amount" optional="show"/>
+                        </list>
+                    </field>
+
+                    <group invisible="billing_mode == 'fees_structure'">
+                        <group>
+                            <field name="sub_fees_category_id" string="Fees Structure" options="{'no_create': True}"/>
+                            <field name="product_id" string="Item" options="{'no_create': True}"/>
+                        </group>
+                        <group>
+                            <field name="amount"/>
+                            <field name="description"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Selected Members" name="selected_members">
+                            <field name="member_ids" placeholder="Select members..." nolabel="1">
+                                <list>
+                                    <field name="name" optional="show"/>
+                                    <field name="prof_grading" string="Grading" optional="show"/>
+                                    <field name="session" string="Session" optional="show"/>
+                                    <field name="prof_id_no" string="ID No." optional="show"/>
+                                    <field name="email" optional="show"/>
+                                    <field name="phone" optional="show"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_pmz_bulk_billing_wizard_list" model="ir.ui.view">
+        <field name="name">pmz.bulk.billing.wizard.list</field>
+        <field name="model">pmz.bulk.billing.wizard</field>
+        <field name="arch" type="xml">
+            <list string="Billing Runs">
+                <field name="date" optional="show"/>
+                <field name="billing_year" optional="show"/>
+                <field name="billing_mode" optional="show"/>
+                <field name="selection_type" optional="show"/>
+                <field name="grading" optional="hide"/>
+                <field name="fees_structure_id" optional="hide"/>
+                <field name="product_id" optional="hide"/>
+                <field name="amount" optional="hide"/>
+                <field name="member_count" optional="show"/>
+                <field name="invoice_count" optional="show"/>
+                <field name="is_generated" string="Status" widget="boolean" readonly="1" optional="show"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_pmz_bulk_billing_wizard" model="ir.actions.act_window">
+        <field name="name">Billing</field>
+        <field name="res_model">pmz.bulk.billing.wizard</field>
+        <field name="view_mode">list,form</field>
+        <field name="target">current</field>
+    </record>
+</odoo>

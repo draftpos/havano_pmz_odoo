@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Sub Fees Category Form View -->
+    <record id="view_pmz_fees_structure_sub_form" model="ir.ui.view">
+        <field name="name">pmz.fees.structure.sub.form</field>
+        <field name="model">pmz.fees.structure.sub</field>
+        <field name="arch" type="xml">
+            <form string="Fees Structure">
+                <header>
+                    <button name="action_share_across_companies" string="Share Across Companies" type="object" class="oe_highlight" invisible="not company_id"/>
+                    <button name="action_restrict_to_company" string="Restrict to Current Company" type="object" invisible="company_id"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="name"/>
+                        </group>
+                        <group>
+                            <field name="is_main"/>
+                            <field name="is_monthly_billed"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Sub Fees Category List View -->
+    <record id="view_pmz_fees_structure_sub_list" model="ir.ui.view">
+        <field name="name">pmz.fees.structure.sub.list</field>
+        <field name="model">pmz.fees.structure.sub</field>
+        <field name="arch" type="xml">
+            <list string="Fees Structures">
+                <field name="name" optional="show"/>
+                <field name="is_main" optional="show"/>
+                <field name="is_monthly_billed" optional="show"/>
+                <field name="company_id" groups="base.group_multi_company" options="{'no_create': True, 'no_open': True}" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Sub Fees Category Action -->
+    <record id="action_pmz_fees_structure_sub" model="ir.actions.act_window">
+        <field name="name">Fees Structures</field>
+        <field name="res_model">pmz.fees.structure.sub</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Fees Assignment Form View -->
+    <record id="view_pmz_fees_structure_form" model="ir.ui.view">
+        <field name="name">pmz.fees.structure.form</field>
+        <field name="model">pmz.fees.structure</field>
+        <field name="arch" type="xml">
+            <form string="Fees Assignment">
+                <header>
+                    <button name="action_share_across_companies" string="Share Across Companies" type="object" class="oe_highlight" invisible="not company_id"/>
+                    <button name="action_restrict_to_company" string="Restrict to Current Company" type="object" invisible="company_id"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="company_id" groups="base.group_multi_company" options="{'no_create': True, 'no_open': True}"/>
+                            <field name="name" invisible="1"/>
+                            <field name="category_id" domain="[('is_main', '=', True)]" options="{'no_create': True, 'no_open': True}"/>
+                        </group>
+                        <group>
+                            <field name="is_monthly_billed"/>
+                            <field name="active" widget="boolean_toggle"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Fees Items">
+                            <field name="line_ids">
+                                <list string="Fees Items" editable="bottom">
+                                    <field name="company_id" groups="base.group_multi_company" column_invisible="1"/>
+                                    <field name="sub_fees_category_id" string="Fees Structure" domain="[('is_main', '=', False)]" options="{'no_create': True, 'no_open': True}" optional="show"/>
+                                    <field name="product_id" string="Item" required="1" options="{'no_create': True, 'no_open': True}" optional="show"/>
+                                    <field name="qty" string="Qty" optional="show"/>
+                                    <field name="rate" string="Unit Price" optional="show"/>
+                                    <field name="total" string="Total" sum="Total Amount" optional="show"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Fees Assignment List View -->
+    <record id="view_pmz_fees_structure_list" model="ir.ui.view">
+        <field name="name">pmz.fees.structure.list</field>
+        <field name="model">pmz.fees.structure</field>
+        <field name="arch" type="xml">
+            <list string="Fees Assignments">
+                <field name="category_id" optional="show"/>
+                <field name="description" optional="hide"/>
+                <field name="item_count" optional="show"/>
+                <field name="total_amount" sum="Total" optional="show"/>
+                <field name="is_monthly_billed" optional="show"/>
+                <field name="active" widget="boolean_toggle" optional="show"/>
+                <field name="company_id" groups="base.group_multi_company" options="{'no_create': True, 'no_open': True}" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Fees Assignment Action -->
+    <record id="action_pmz_fees_structure" model="ir.actions.act_window">
+        <field name="name">Fees Assignments</field>
+        <field name="res_model">pmz.fees.structure</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>
