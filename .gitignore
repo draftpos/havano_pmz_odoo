@@ -6,3 +6,5 @@ __pycache__/
 *.swp
 *~
 .DS_Store
+config.bat
+node_modules
