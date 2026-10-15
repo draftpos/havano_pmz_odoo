@@ -108,7 +108,7 @@ class PmzMemberPayment(models.Model):
 
             # Register standard payment or reconcile invoice lines
             partner = payment.member_id.partner_id
-            for line in payment.line_ids.filtered(lambda l: l.amount_allocated > 0):
+            for line in payment.line_ids.filtered(lambda l: l.amount_allocated > 0 and l.move_id):
                 invoice = line.move_id
                 # Register payment against invoice
                 pay_wizard = self.env['account.payment.register'].with_context(
@@ -133,8 +133,8 @@ class PmzMemberPaymentLine(models.Model):
     _name = 'pmz.member.payment.line'
     _description = 'Member Payment Line'
 
-    payment_id = fields.Many2one('pmz.member.payment', string='Payment', ondelete='cascade', required=True)
-    move_id = fields.Many2one('account.move', string='Invoice', required=True, domain="[('move_type', '=', 'out_invoice')]")
+    payment_id = fields.Many2one('pmz.member.payment', string='Payment', ondelete='cascade')
+    move_id = fields.Many2one('account.move', string='Invoice', domain="[('move_type', '=', 'out_invoice')]")
     company_id = fields.Many2one('res.company', related='payment_id.company_id', store=True)
     currency_id = fields.Many2one('res.currency', related='move_id.currency_id')
 
