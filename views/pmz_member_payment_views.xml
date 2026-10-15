@@ -31,6 +31,7 @@
                         <page string="Outstanding Invoices" name="outstanding_invoices">
                             <field name="line_ids">
                                 <list string="Invoices" editable="bottom" create="false" delete="false">
+                                    <field name="move_id" column_invisible="True"/>
                                     <field name="name" readonly="1" optional="show"/>
                                     <field name="invoice_date" readonly="1" optional="show"/>
                                     <field name="amount_residual" readonly="1" widget="monetary" options="{'currency_field': 'currency_id'}" optional="show"/>
